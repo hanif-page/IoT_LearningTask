@@ -48,6 +48,7 @@ def runMonitorDisplay(client):
 
             # Read Temperature
             temperature = client.read_input_registers(address=1, count=1, device_id=1)
+            # print(temperature)
             if not temperature.isError():
                 print(f"Temperature (raw data): {temperature.registers[0]}")
                 print(f"Temperature (°C): {temperature.registers[0] / 10.0}") # assume that the raw data scaled by 10x
@@ -97,6 +98,7 @@ def runMonitorDisplay(client):
 def changeBaudRate(client, newBaudRate):
     # Change the Baud Rate
     client.write_register(address=258, value=newBaudRate, device_id=1)
+    # --> This will be changed after a while, but not instantly!
 
     # read the new register
     baudRate = client.read_holding_registers(address=258, count=1, device_id=1)
@@ -144,11 +146,11 @@ def runOptionDisplay(client):
 # CHECK PORT: 
 # ls /dev/ttyUSB*
 port = "/dev/ttyUSB0"
-baudRate = 9600
+# baudRate = 9600
 # baudRate = 14400
 
-def main():
-    client = connectToClient(port=port, baudRate=baudRate)
+def main(baudrate):
+    client = connectToClient(port=port, baudRate=baudrate)
 
     print("Welcome to IoT Learning Task System...")
     print("Sensor: XY-MD02\n")
@@ -156,4 +158,8 @@ def main():
     runOptionDisplay(client)
 
 if __name__ == "__main__":
-    main()
+    baudrate = int(input("Please input initial baudRate: "))
+
+    print()
+
+    main(baudrate)
