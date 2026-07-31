@@ -27,7 +27,6 @@ deactivate # deactivate the environment
 from pymodbus.client import ModbusSerialClient
 import time
 from datetime import datetime
-# from sshkeyboard import listen_keyboard
 
 def connectToClient(port, baudRate):
     client = ModbusSerialClient(port=port, timeout=2, baudrate=baudRate, bytesize=8, parity="N", stopbits=1)
@@ -83,7 +82,6 @@ def runMonitorDisplay(client):
             # instruction of how to exit from the loop
             print("\n[Press ctrl+C to Exit from the Loop]")
 
-            # 5 second Interval!
             time.sleep(2) # 2 seconds sleep
             print("--------------------------------------------------")
     except KeyboardInterrupt:
@@ -93,8 +91,6 @@ def runMonitorDisplay(client):
     finally:
         runOptionDisplay(client)
 
-# [STILL WRONG] 
-# --> Because the accepted baudrate to connect is still default (9600), even tho the holding register have changed to any other than 9600 (either 14400 or 19200)
 def changeBaudRate(client, newBaudRate):
     # Change the Baud Rate
     client.write_register(address=258, value=newBaudRate, device_id=1)
@@ -146,8 +142,6 @@ def runOptionDisplay(client):
 # CHECK PORT: 
 # ls /dev/ttyUSB*
 port = "/dev/ttyUSB0"
-# baudRate = 9600
-# baudRate = 14400
 
 def main(baudrate):
     client = connectToClient(port=port, baudRate=baudrate)
