@@ -1,0 +1,4 @@
+date,time,temperature,humidity,deviceAddress,baudRate,temperatureCorrection,humidityCorrection
+2026-08-01,15-07-52,26.9,39,1,9600,0,0
+2026-08-01,15-07-54,26.9,39,1,9600,0,0
+2026-08-01,15-07-57,26.9,39,1,9600,0,0

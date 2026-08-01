@@ -1,22 +1,7 @@
-# How to setup .venv (run in the Terminal)
-"""
-python3 -m venv .venv # .venv is the name of the folder!
-
-source .venv/bin/activate # activate the environment!
-
-which python # check if the python comes from the .venv/bin folder!
-
-# install any dependencies
-
-# set all dependencies to the requirements.txt file
-pip freeze > requirements.txt
-
-deactivate # deactivate the environment
-"""
-
 import minimalmodbus
 import time
 from datetime import datetime
+from package.sensordata import SensorData # for this absolute import explanation, look at setup.py
 
 # Function Code 
 # check the xy md 02 function code datasheet!
@@ -46,40 +31,65 @@ def connectToInstrument(baudRate, port, deviceAddress):
         exit(1)
 
 def runMonitorDisplay(instrument):
+    sensor = SensorData(filePathRelativeToDriver="data") # the sensor data class, takes the target file output path as an argument
+
     try:
         while True:
 
             strDate = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"== MONITOR DATA ({strDate}) ==\n")
 
+             # string to be stored in the database
+            _date = datetime.now().strftime('%Y-%m-%d')
+            _time = datetime.now().strftime('%H-%M-%S')
+
             # Read Temperature
             temperature = instrument.read_register(registeraddress=1, number_of_decimals=1, functioncode=4)
-            print(f"Temperature (°C): {temperature}")
+            _temperature = temperature
+            print(f"Temperature (°C): {_temperature}")
 
             print() # space between the Temperature and Humidity data
 
             # Read Humidity
             humidity = instrument.read_register(registeraddress=2, number_of_decimals=1, functioncode=4)
-            print(f"Humidity (%RH): {humidity}")
+            _humidity = humidity
+            print(f"Humidity (%RH): {_humidity}")
 
             print() # space
 
             # Read Keeping Registers
             deviceAddr = instrument.read_register(registeraddress=257, number_of_decimals=1, functioncode=3)
+            _deviceAddr = int(deviceAddr*10)
             print(f"Device Address (raw): {deviceAddr}")
-            print(f"Device Address: {int(deviceAddr*10)}\n")
+            print(f"Device Address: {_deviceAddr}\n")
 
             baudRate = instrument.read_register(registeraddress=258, number_of_decimals=1, functioncode=3)
+            _baudRate = baudRate*10
             print(f"Baud Rate (raw): {baudRate}")
-            print(f"Baud Rate: {baudRate*10}\n")
+            print(f"Baud Rate: {_baudRate}\n")
 
             temperatureCorrection = instrument.read_register(registeraddress=259, number_of_decimals=1, functioncode=3)
+            _temperatureCorrection = temperatureCorrection*10
             print(f"Temperature Correction (raw): {temperatureCorrection}")
-            print(f"Temperature Correction (°C): {temperatureCorrection*10}\n")
+            print(f"Temperature Correction (°C): {_temperatureCorrection}\n")
 
             humidityCorrection = instrument.read_register(registeraddress=260, number_of_decimals=1, functioncode=3)
+            _humidityCorrection = humidityCorrection*10
             print(f"Humidity Correction (raw): {humidityCorrection}")
-            print(f"Humidity Correction (%RH): {humidityCorrection*10}")
+            print(f"Humidity Correction (%RH): {_humidityCorrection}")
+
+            # create the sensor data from the SensorData class
+            newData = sensor.createData(
+                date=_date, 
+                time=_time,
+                temperature=_temperature,
+                humidity=_humidity,
+                deviceAddress=_deviceAddr,
+                baudRate=_baudRate,
+                temperatureCorrection=_temperatureCorrection,
+                humidityCorrection=_humidityCorrection
+            )
+            sensor.addData(newData)
 
             # instruction of how to exit from the loop
             print("\n[Press ctrl+C to Exit from the Loop]")
@@ -91,6 +101,8 @@ def runMonitorDisplay(instrument):
     except Exception as e:
         print(f"Error: {e}")
     finally:
+        sensor.saveDataToCsv()
+
         runOptionDisplay(instrument)
 
 def changeBaudRate(instrument, newBaudRate):
