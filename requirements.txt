@@ -1,3 +1,5 @@
+minimalmodbus==2.1.1
+-e git+https://github.com/hanif-page/IoT_LearningTask.git@f2ec17008c118d783eacb7b9f45f868a96c0e259#egg=myproject
+mysql-connector-python==26.7.0
 pymodbus==3.14.0
 pyserial==3.5
-minimalmodbus==2.1.1
