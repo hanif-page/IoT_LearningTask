@@ -2,6 +2,7 @@ import minimalmodbus
 import time
 from datetime import datetime
 from package.sensordata import SensorData # for this absolute import explanation, look at setup.py
+from package.database import MySQLData
 
 # Function Code 
 # check the xy md 02 function code datasheet!
@@ -32,6 +33,7 @@ def connectToInstrument(baudRate, port, deviceAddress):
 
 def runMonitorDisplay(instrument):
     sensor = SensorData(filePathRelativeToDriver="data") # the sensor data class, takes the target file output path as an argument
+    MySQLSensorData = MySQLData(databaseName="iot_task", tableName="minimalmodbus_data") # in terms of efficiency, this shouldn't be called every time!
 
     try:
         while True:
@@ -91,6 +93,20 @@ def runMonitorDisplay(instrument):
             )
             sensor.addData(newData)
 
+            # MySQL Data Saving process
+            if MySQLSensorData.connectToMySQL():
+                if MySQLSensorData.addData(
+                    date=_date,
+                    time=_time,
+                    temperature=_temperature,
+                    humidity=_humidity,
+                    deviceAddress=_deviceAddr,
+                    baudRate=_baudRate,
+                    temperatureCorrection=_temperatureCorrection,
+                    humidityCorrection=_humidityCorrection
+                ):
+                    print("Data successfully added!")
+
             # instruction of how to exit from the loop
             print("\n[Press ctrl+C to Exit from the Loop]")
 
@@ -102,6 +118,8 @@ def runMonitorDisplay(instrument):
         print(f"Error: {e}")
     finally:
         sensor.saveDataToCsv()
+
+        MySQLSensorData.closeConnection()
 
         runOptionDisplay(instrument)
 

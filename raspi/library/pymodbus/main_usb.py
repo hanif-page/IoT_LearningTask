@@ -6,6 +6,7 @@ from pymodbus.client import ModbusSerialClient
 import time
 from datetime import datetime
 from package.sensordata import SensorData # for this absolute import explanation, look at setup.py
+from package.database import MySQLData
 
 def connectToClient(port, baudRate):
     client = ModbusSerialClient(port=port, timeout=2, baudrate=baudRate, bytesize=8, parity="N", stopbits=1)
@@ -19,6 +20,7 @@ def connectToClient(port, baudRate):
 
 def runMonitorDisplay(client):
     sensor = SensorData(filePathRelativeToDriver="data") # the sensor data class, takes the target file output path as an argument
+    MySQLSensorData = MySQLData(databaseName="iot_task", tableName="pymodbus_data") # in terms of efficiency, this shouldn't be called every time!
 
     try:
 
@@ -82,6 +84,20 @@ def runMonitorDisplay(client):
                 humidityCorrection=_humidityCorrection
             )
             sensor.addData(newData)
+            
+            # MySQL Data Saving process
+            if MySQLSensorData.connectToMySQL():
+                if MySQLSensorData.addData(
+                    date=_date,
+                    time=_time,
+                    temperature=_temperature,
+                    humidity=_humidity,
+                    deviceAddress=_deviceAddr,
+                    baudRate=_baudRate,
+                    temperatureCorrection=_temperatureCorrection,
+                    humidityCorrection=_humidityCorrection
+                ):
+                    print("Data successfully added!")
 
             # instruction of how to exit from the loop
             print("\n[Press ctrl+C to Exit from the Loop]")
@@ -94,6 +110,8 @@ def runMonitorDisplay(client):
         print(f"Error: {e}")
     finally:
         sensor.saveDataToCsv()
+
+        MySQLSensorData.closeConnection()
 
         runOptionDisplay(client)
 
