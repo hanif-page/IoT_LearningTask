@@ -1,6 +1,11 @@
 import serial
 import sys
 
+from typing import Generic, Literal, TypeVar, cast
+T = TypeVar("T", covariant=False)
+
+import struct
+
 # Good python class object name writing format!
 # https://medium.com/better-programming/how-to-use-underscore-properly-in-python-37df5e05ba4c
 
@@ -34,6 +39,89 @@ class CommunicationParams:
         self.stopbits = stopbits
         self.deviceid = deviceid
         self.handle_local_echo = handle_local_echo
+
+class ModbusPDU:
+    def __init__(
+        self,
+        deviceId: int = 0,
+        transactionId: int = 0,
+        address: int = 0,
+        count: int = 0,
+        bits: list[bool] | None = None,
+        registers: list[int] | None = None,
+        status: int = 1,
+        functioncode: int = 4 # default, for the input register
+    ) -> None:
+        """Initialize the base data for a modbus request"""
+
+        self.deviceId: int = deviceId
+        if deviceId > 255:
+            raise f"Invalid ID {deviceId}"
+
+        self.transactionId: int = transactionId
+        self.address: int = address
+        self.bits: list[bool] = bits or []
+        self.registers: list[int] = registers or []
+        self.count: int = count or len(self.registers)
+        self.status: int = status
+        self.exception_code: int = 0
+        # self.fut: asyncio.Future
+        # self.retries: int = 0
+
+    def verifyCount(self, max_count: int, count: int = -1) -> None:
+        """Validate API supplied count"""
+
+        if count == -1:
+            count = self.count
+        if not 1 <= count <= max_count:
+            raise ValueError(f"1 <= count {count} <= {max_count} !")
+
+    def verifyAddress(self, address: int = -1) -> None:
+        """Validate API supplied address"""
+
+        if address == -1:
+            address = self.address
+        if not 0 <= address <= 65535:
+            raise ValueError(f"0 <= address {address} <= 65535 !")
+
+        
+
+class ReadRegisterRequest(ModbusPDU):
+
+    """
+    functioncode = 3 (holding register)
+    functioncode = 4 (input register)
+    """
+
+    def encode(self) -> bytes:
+        self.verifyAddress()
+        self.verifyCount(125)
+        return struct.pack(">HH", self.address, self.count)
+
+    def decode(self, data: bytes) -> None:
+        self.address, self.count = struct.unpack(">HH", data[:4])
+
+
+class WriteRegister:
+
+    """
+    functioncode = 6 (edit baudrate value)
+    """
+
+    def __init__(
+        self,
+
+    ) -> None:
+        return None
+
+    def datastore_update(self):
+        return True
+
+    def setValues(self):
+        return True
+
+    def getValues(self):
+        return True
 
 class Client:
     def __init__(
@@ -84,6 +172,9 @@ class Client:
         if baudRate <= 19200:
             self.inter_byte_timeout = 1.5 * self._t0
 
+    def execute(self, no_response_expected: bool, request) -> T:
+        _ = no_response_expected, request
+        return cast(T, None)
 
     def connect(self) -> bool:
 
@@ -122,11 +213,16 @@ class Client:
     def read_register(
             self,
             registeraddress: int,
-            number_of_decimals: int,
-            functioncode: int = 4 # default for input register. The user needs to change the functioncode to 3 if they want to read the holding register!
+            count: int = 1,
+            functioncode: int = 4, # default for input register. The user needs to change the functioncode to 3 if they want to read the holding register!
+            no_response_expected: bool = False,
+            deviceId: int = 1
     ):
         # determine the argument of this function first!
-        return True 
+        return self.execute(
+            no_response_expected,
+            ReadRegisterRequest(address=registeraddress, count=count, deviceId=deviceId, functioncode=functioncode)
+        ) 
 
     def write_register(
             self,
