@@ -113,6 +113,8 @@ class MySQLData:
         try:
             self.mydb.close()
 
+            print("[CSV] Data successfully added!")
+
             return True
         except Exception as e:
             print(f"Error: {e}")
