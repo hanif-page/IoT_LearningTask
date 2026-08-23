@@ -9,19 +9,23 @@ from package.sensordata import SensorData # for this absolute import explanation
 from package.database import MySQLData
 
 class PyModbusModule:
-    def __init__(self, port: str, baudRate: int):
+    def __init__(self, port: str, baudRate: int, deviceAddress: int):
         self.port = port
         self.baudRate = baudRate
+        self.deviceAddress = deviceAddress
 
     def connectToClient(self) -> ModbusSerialClient:
         client = ModbusSerialClient(port=self.port, timeout=2, baudrate=self.baudRate, bytesize=8, parity="N", stopbits=1)
         if client.connect():
-            print(f"[CONNECTION] Port {port} Connected!\n")
+            print(f"[Pymodbus][CONNECTION] Port {self.port} Connected!\n")
 
             return client
         else:
-            print(f"[CONNECTION] Port {port} Failed to Connect!")
+            print(f"[Pymodbus][CONNECTION] Port {self.port} Failed to Connect!")
             exit(1)
+
+    def closeConnection(self, client: ModbusSerialClient) -> None:
+        client.close()
 
     def changeBaudRate(self, client: ModbusSerialClient, newBaudRate: int) -> bool:
         # Change the Baud Rate
@@ -32,18 +36,14 @@ class PyModbusModule:
         baudRate = client.read_holding_registers(address=258, count=1, device_id=1)
 
         if baudRate.registers[0] == newBaudRate:
-            print(f"[SYSTEM] Successfully change baud rate to {baudRate.registers[0]}!")
-            # print(f"Please !\n")
+            print(f"[Pymodbus][SYSTEM] Successfully change baud rate to {baudRate.registers[0]}!")
             return True
         else:
-            print(f"[SYSTEM] Failed to change the baud rate. Baud rate: {baudRate.registers[0]}\n")
+            print(f"[Pymodbus][SYSTEM] Failed to change the baud rate. Baud rate: {baudRate.registers[0]}\n")
             return False
-        # runOptionDisplay(client)
-
-        # NOTE: call the function to move back to the Option Display!
     
     def getMonitoredData(self, client: ModbusSerialClient) -> dict:
-        sensor = SensorData(filePathRelativeToDriver="data") # the sensor data class, takes the target file output path as an argument
+        sensor = SensorData(filePathRelativeToDriver="raspi/library/pymodbus/data") # the sensor data class, takes the target file output path as an argument
         MySQLSensorData = MySQLData(databaseName="iot_task", tableName="pymodbus_data") # in terms of efficiency, this shouldn't be called every time!
 
         strDate = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -93,6 +93,8 @@ class PyModbusModule:
         _humidityCorrection = humidityCorrection.registers[0]
         print(f"Humidity Correction (Raw Data): {_humidityCorrection}")
 
+        print()
+
         # create the sensor data from the SensorData class
         newData = sensor.createData(
             date=_date, 
@@ -118,13 +120,10 @@ class PyModbusModule:
                 temperatureCorrection=_temperatureCorrection,
                 humidityCorrection=_humidityCorrection
             ):
-                print("[MySQL] Data successfully added!")
+                print("[Pymodbus][MySQL] Data successfully added!")
 
-        # NOTE: The saving mechanism needs to be changed (current: 1 file = 1 data)
-        """
-        Main Reason: We need to set 1 big CSV file that will be storing all the monitored data in the same day. So 1 file = 1 day. So we need to append data to the existing csv file! (if exist. If not, then create it first)
-        """
-        sensor.saveDataToCsv()
+        # store it into 1 big CSV file! (just like a mariadb table)
+        sensor.saveDataToBigCSV(libraryname="pymodbus")
 
         MySQLSensorData.closeConnection()
 

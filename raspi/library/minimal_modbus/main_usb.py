@@ -11,6 +11,135 @@ from package.database import MySQLData
 # Instrument function argument detail
 # https://github.com/pyhys/minimalmodbus/blob/master/minimalmodbus.py
 
+# NOTE: in this code, client = instrument (the correct term here is instrument, but I just simplify it so that it match with the term used in the Pymodbus program!)
+class MinimalModbusModule:
+    def __init__(self, port: str, baudRate: int, deviceAddress: int):
+        self.port = port
+        self.baudRate = baudRate
+        self.deviceAddress = deviceAddress
+
+    def connectToClient(self) -> minimalmodbus.Instrument:
+        try:
+            client = minimalmodbus.Instrument(port=self.port, slaveaddress=self.deviceAddress)
+
+            # default setup
+            client.serial.bytesize = 8
+            client.serial.parity = minimalmodbus.serial.PARITY_NONE
+            client.serial.stopbits = 1
+            client.serial.timeout = 1
+
+            client.serial.baudrate = self.baudRate
+
+            print(f"[Minimalmodbus][CONNECTION] Port {self.port} Connected!\n")
+
+            return client
+        except Exception as e:
+            print(f"[Minimalmodbus][CONNECTION] Port {self.port} Failed to Connect!")
+            print(f"[Minimalmodbus] Error: {e}")
+
+            exit(1)
+
+    def closeConnection(self, client: minimalmodbus.Instrument) -> None:
+        client.serial.close()
+
+    def changeBaudRate(self, client: minimalmodbus.Instrument, newBaudRate: int) -> bool:
+        # Change the Baud Rate
+        client.write_register(registeraddress=258, value=newBaudRate, functioncode=6)
+        # --> This will be changed after a while, but not instantly!
+
+        # read the new register
+        baudRate = client.read_register(registeraddress=258, number_of_decimals=1, functioncode=3) * 10
+
+        if newBaudRate == baudRate:
+            print(f"[Minimalmodbus][SYSTEM] Successfully change baud rate to {baudRate}!")
+            return True
+        else:
+            print(f"[Minimalmodbus][SYSTEM] Failed to change the baud rate. Baud rate: {baudRate}\n")
+            return False
+
+    def getMonitoredData(self, client: minimalmodbus.Instrument) -> dict:
+        sensor = SensorData(filePathRelativeToDriver="raspi/library/minimal_modbus/data") # the sensor data class, takes the target file output path as an argument
+        MySQLSensorData = MySQLData(databaseName="iot_task", tableName="minimalmodbus_data") # in terms of efficiency, this shouldn't be called every time!
+
+        strDate = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"== MONITOR DATA ({strDate}) ==\n")
+
+            # string to be stored in the database
+        _date = datetime.now().strftime('%Y-%m-%d')
+        _time = datetime.now().strftime('%H-%M-%S')
+
+        # Read Temperature
+        temperature = client.read_register(registeraddress=1, number_of_decimals=1, functioncode=4)
+        _temperature = temperature
+        print(f"Temperature (°C): {_temperature}")
+
+        print() # space between the Temperature and Humidity data
+
+        # Read Humidity
+        humidity = client.read_register(registeraddress=2, number_of_decimals=1, functioncode=4)
+        _humidity = humidity
+        print(f"Humidity (%RH): {_humidity}")
+
+        print() # space
+
+        # Read Keeping Registers
+        deviceAddr = client.read_register(registeraddress=257, number_of_decimals=1, functioncode=3)
+        _deviceAddr = int(deviceAddr*10)
+        print(f"Device Address (raw): {deviceAddr}")
+        print(f"Device Address: {_deviceAddr}\n")
+
+        baudRate = client.read_register(registeraddress=258, number_of_decimals=1, functioncode=3)
+        _baudRate = baudRate*10
+        print(f"Baud Rate (raw): {baudRate}")
+        print(f"Baud Rate: {_baudRate}\n")
+
+        temperatureCorrection = client.read_register(registeraddress=259, number_of_decimals=1, functioncode=3)
+        _temperatureCorrection = temperatureCorrection*10
+        print(f"Temperature Correction (raw): {temperatureCorrection}")
+        print(f"Temperature Correction (°C): {_temperatureCorrection}\n")
+
+        humidityCorrection = client.read_register(registeraddress=260, number_of_decimals=1, functioncode=3)
+        _humidityCorrection = humidityCorrection*10
+        print(f"Humidity Correction (raw): {humidityCorrection}")
+        print(f"Humidity Correction (%RH): {_humidityCorrection}")
+
+        print()
+
+        # create the sensor data from the SensorData class
+        newData = sensor.createData(
+            date=_date, 
+            time=_time,
+            temperature=_temperature,
+            humidity=_humidity,
+            deviceAddress=_deviceAddr,
+            baudRate=_baudRate,
+            temperatureCorrection=_temperatureCorrection,
+            humidityCorrection=_humidityCorrection
+        )
+        sensor.addData(newData)
+
+        # MySQL Data Saving process
+        if MySQLSensorData.connectToMySQL():
+            if MySQLSensorData.addData(
+                date=_date,
+                time=_time,
+                temperature=_temperature,
+                humidity=_humidity,
+                deviceAddress=_deviceAddr,
+                baudRate=_baudRate,
+                temperatureCorrection=_temperatureCorrection,
+                humidityCorrection=_humidityCorrection
+            ):
+                print("[Minimalmodbus][MySQL] Data successfully added!")
+
+        # store it into 1 big CSV file! (just like a mariadb table)
+        sensor.saveDataToBigCSV(libraryname="minimalmodbus")
+
+        MySQLSensorData.closeConnection()
+        print("--------------------------------------------------")
+
+        return newData # returning the data in form of Dictionary
+
 def connectToInstrument(baudRate, port, deviceAddress):
     try:
         instrument = minimalmodbus.Instrument(port=port, slaveaddress=deviceAddress)

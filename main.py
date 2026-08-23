@@ -13,11 +13,11 @@ from ui_mainwindow import Ui_MainWindow
 
 
 from raspi.library.pymodbus.main_usb import PyModbusModule # importing the class!
-# from raspi.library.minimal_modbus.main_usb 
+from raspi.library.minimal_modbus.main_usb import MinimalModbusModule # importing the class!
 # from raspi.no_library import main_usb as pyserial # but this still won't work because I haven't develop it!
 
 class MainWindow(QMainWindow):
-    def __init__(self, modbusModule, modbusClient):
+    def __init__(self, modbusModule, modbusClient, baudRate: int):
         super(MainWindow, self).__init__()
 
         """
@@ -32,9 +32,12 @@ class MainWindow(QMainWindow):
         self.modbusClient = modbusClient
         self.isMonitoring = False
         self.isBaudRateControlSuccess = False
+        self.baudRate = baudRate
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.setWindowTitle("Pymodbus")
 
         # Stacked Pages (default page)
         self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
@@ -48,7 +51,7 @@ class MainWindow(QMainWindow):
         # https://doc.qt.io/qtforpython-6/PySide6/QtCore/QTimer.html
         self.monitorTimer = QTimer()
         self.monitorTimer.setInterval(5000) # 5000ms or 5s delay!
-        self.monitorTimer.timeout.connect(self.stopControlDisplay) # when the 5 second ends, call the recurring function inside the connect parameter!
+        self.monitorTimer.timeout.connect(self.updateMonitoringData) # when the 5 second ends, call the recurring function inside the connect parameter!
 
         # When control_button clicked
         self.ui.control_button.clicked.connect(self.runControlDisplay)
@@ -68,11 +71,48 @@ class MainWindow(QMainWindow):
         self.ui.label_9.setText(QCoreApplication.translate("MainWindow", u"", None))
         self.ui.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"", None))
 
-        # getting the port and library input from the user!
-        self.ui.update_settings_button.clicked.connect(lambda: print(f"Port: {self.ui.port_input.toPlainText()}\nLibrary: {self.ui.library_pick.currentText()}"))
+        # hiding the error msg for the port error and library error as default
+        # self.ui.port_error_msg.setText("*Error When Accessing Port. Please set the correct Port!")
+        # self.ui.library_error_msg.setText("*Error When Using Library. Please use the other Library!")
+        self.ui.port_error_msg.setText("")
+        self.ui.library_error_msg.setText("")
 
+        # getting the port and library input from the user and call the recurring function
+        self.ui.update_settings_button.clicked.connect(self.updatePortAndLibrary)
+
+    def updatePortAndLibrary(self):
+        newPort = self.ui.port_input.toPlainText()
+        newLibrary = self.ui.library_pick.currentText()
+
+        # closing the previous connection!
+        self.modbusModule.closeConnection(self.modbusClient)
+
+        if newLibrary == "Pymodbus":
+            # PYMODBUS MODULE
+            pymodbus = PyModbusModule(port=newPort, baudRate=self.baudRate, deviceAddress=1)
+            pymodbusClient = pymodbus.connectToClient()
+
+            self.modbusModule = pymodbus
+            self.modbusClient = pymodbusClient
+
+            self.setWindowTitle("Pymodbus")
+        elif newLibrary == "Minimalmodbus":
+            # MINIMALMODBUS MODULE
+            minimalmodbus = MinimalModbusModule(port=newPort, baudRate=self.baudRate, deviceAddress=1)
+            minimalmodbusClient = minimalmodbus.connectToClient()
+
+            self.modbusModule = minimalmodbus
+            self.modbusClient = minimalmodbusClient
+
+            self.setWindowTitle("Minimalmodbus")
+        elif newLibrary == "Serial (no library)":
+            self.setWindowTitle("Serial [NOT YET DEVELOPED]")
+
+            exit(1)
+            
     def runMonitorDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.monitorDisplay)
+        self.ui.update_settings_button.setEnabled(False) # disabling the setting button outside the Option Display!
 
         self.isMonitoring = True
 
@@ -84,11 +124,12 @@ class MainWindow(QMainWindow):
     def stopMonitorDisplay(self):
         self.isMonitoring = False
         self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
+        self.ui.update_settings_button.setEnabled(True) # enabling the setting button in the Option Display!
 
         # stop the QTimer interval timer! 
         self.monitorTimer.stop()
 
-        print("Out from the Monitor Display!")
+        print("\nOut from the Monitor Display!\n")
     def updateMonitoringData(self):
         try:
             # Get Data
@@ -121,10 +162,12 @@ class MainWindow(QMainWindow):
 
     def runControlDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.controlDisplay)
+        self.ui.update_settings_button.setEnabled(False) # disabling the setting button outside the Option Display!
     def setBaudRate(self, baudRate: int):
         if self.modbusModule.changeBaudRate(self.modbusClient, baudRate):
             print(f"Baud Rate successfully changed to {baudRate}")
             self.isBaudRateControlSuccess = True
+            self.baudRate = baudRate
 
             self.ui.label_9.setText(QCoreApplication.translate("MainWindow", u"*Baud Rate Changed To:", None))
             self.ui.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", f"{baudRate}", None))
@@ -137,35 +180,33 @@ class MainWindow(QMainWindow):
         if self.isBaudRateControlSuccess:
             self.isBaudRateControlSuccess = False
             self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
+            self.ui.update_settings_button.setEnabled(True) # enabling the setting button in the Option Display!
             self.controlTimer.stop()
 
             self.ui.label_9.setText(QCoreApplication.translate("MainWindow", u"", None))
             self.ui.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"", None))
 
-            print("Out from the Control Display!")
+            print("\nOut from the Control Display!\n")
         else:
             self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
-            print("Out from the Control Display!")
+            print("\nOut from the Control Display!\n")
 
-if __name__ == "__main__":
-    # DEFAULT VALUE
-    defaultPort = "/dev/ttyUSB0"
-    defaultBaudRate = 9600
-
-    # DEFAULT MODBUS MODULE
-    pymodbus = PyModbusModule(port=defaultPort, baudRate=defaultBaudRate)
+def main(port: str, baudRate: int) -> None:
+    # PYMODBUS MODULE (DEFAULT)
+    pymodbus = PyModbusModule(port=port, baudRate=baudRate, deviceAddress=1)
     pymodbusClient = pymodbus.connectToClient()
-
-    # OTHER MODBUS MODULE
-    ...
 
     app = QApplication(sys.argv)
 
-    window = MainWindow(pymodbus, pymodbusClient)    
+    window = MainWindow(modbusModule=pymodbus, modbusClient=pymodbusClient, baudRate=baudRate)    
 
     window.show()
 
-    # This Works!
+    # Red Exit Button
     window.ui.exit_button.clicked.connect(app.quit)    
 
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    # parameter is the default Port and BaudRate
+    main(port="/dev/ttyUSB0", baudRate=9600)

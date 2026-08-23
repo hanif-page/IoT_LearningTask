@@ -88,8 +88,29 @@ class SensorData:
                 writer.writeheader()
                 writer.writerows(self.arrOfDicts)
 
-            # print(self.arrOfDicts)
             print(f"Data saved at {self.filePathRelativeToDriver}/{fileName}\n")
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def saveDataToBigCSV(self, libraryname: str):
+        fileName = f"{libraryname}_data.csv"
+
+        try:
+            with open(f"{self.filePathRelativeToDriver}/{fileName}", "a", newline="") as csvfile:
+                fieldNames = [
+                    "date",
+                    "time",
+                    "temperature",
+                    "humidity",
+                    "deviceAddress",
+                    "baudRate",
+                    "temperatureCorrection",
+                    "humidityCorrection"
+                ]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldNames)
+                writer.writerows(self.arrOfDicts)
+            print(f"[CSV] Data saved at {self.filePathRelativeToDriver}/{fileName}\n")
 
         except Exception as e:
             print(f"Error: {e}")
