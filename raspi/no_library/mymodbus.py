@@ -1,5 +1,7 @@
 import serial
 import sys
+import struct
+import time
 
 from typing import Generic, Literal, TypeVar, cast
 T = TypeVar("T", covariant=False)
@@ -210,6 +212,22 @@ class Client:
 
         self.socket = None
 
+    def get_crc_ccitt_16(self, data):
+        # crc 16 references: https://www.askpython.com/python/examples/crc-16-bit-manual-calculation
+
+        crc = 0xFFFF
+        for byte in data:
+            crc ^= (byte << 8)
+            for _ in range(8):
+                if crc & 0x8000:
+                    crc = (crc << 1) ^ 0x1021
+                else:
+                    crc <<= 1
+
+                crc &= 0xFFFF
+
+        return [crc >> 8, crc & 0x0FF] # 0: High Byte, 1: Low Byte
+
     def read_register(
             self,
             registeraddress: int,
@@ -218,11 +236,34 @@ class Client:
             no_response_expected: bool = False,
             deviceId: int = 1
     ):
+
+        # print(f"deviceaddress: {hex(registeraddress)}, functioncode: {hex(functioncode)}, ")
+        
+        # try to read the temperature data
+        # self.socket.write(bytearray([0x01, 0x04, 0x00, 0x01, 0x00, 0x01, 0x60, 0x0A]))
+
+        
+
+        # time.sleep(0.1)
+
+        waiting = self.socket.in_waiting
+        if waiting > 0:
+            data = self.socket.read(waiting)
+            print(f"Data: {data}")
+
+            print(f"Drained {len(data)} bytes from buffer!")
+
+        # Clear input buffer
+        self.socket.reset_input_buffer()
+
+        # Clear output buffer (discard unsent data)
+        self.socket.reset_output_buffer()
+
         # determine the argument of this function first!
-        return self.execute(
-            no_response_expected,
-            ReadRegisterRequest(address=registeraddress, count=count, deviceId=deviceId, functioncode=functioncode)
-        ) 
+        # return self.execute(
+        #     no_response_expected,
+        #     ReadRegisterRequest(address=registeraddress, count=count, deviceId=deviceId, functioncode=functioncode)
+        # ) 
 
     def write_register(
             self,
@@ -233,3 +274,33 @@ class Client:
         # determine the argument of this function first!
 
         return True
+
+def connectToClient(port):
+    client = Client(port=port)
+    if client.connect():
+        print(f"Port {port} Connected!\n")
+
+        return client
+    else:
+        print(f"Port {port} Failed to Connect!")
+        exit(1)
+
+def main() -> None:
+    port = "/dev/ttyUSB0"
+
+    client = connectToClient(port=port)
+
+    client.read_register(
+        registeraddress=1,
+        count=1,
+        functioncode=4
+    )
+
+    # TEST THE CRC FIRST
+    data = b'Hello, World!'
+    crc_16 = client.get_crc_ccitt_16(data)
+
+    print(f"CRC Hi: 0x{crc_16[0]:02X}, CRC Li: 0x{crc_16[1]:02X}")
+
+if __name__ == "__main__":
+    main()
