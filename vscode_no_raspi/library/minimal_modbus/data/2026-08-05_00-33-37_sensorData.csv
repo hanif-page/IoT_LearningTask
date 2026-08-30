@@ -1,0 +1,4 @@
+date,time,temperature,humidity,deviceAddress,baudRate,temperatureCorrection,humidityCorrection
+2026-08-05,00-33-37,27.3,43.7,1,9600,0,0
+2026-08-05,00-33-39,27.3,43.7,1,9600,0,0
+2026-08-05,00-33-41,27.3,43.7,1,9600,0,0
