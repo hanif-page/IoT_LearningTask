@@ -226,44 +226,67 @@ class Client:
 
                 crc &= 0xFFFF
 
-        return [crc >> 8, crc & 0x0FF] # 0: High Byte, 1: Low Byte
+        return crc >> 8, crc & 0xFF # 0: High Byte, 1: Low Byte
+
+    def split_hi_li(self, data: int) -> int:
+
+        return data >> 8, data & 0xFF   
+
+    def merge_hi_li(self, hi, li):
+
+        # for splitting, it;s
+        # hi = data >> 8, li & 0xFF
+
+        # this process basically the reverse process of the top data 
+        return (hi << 8) | li
 
     def read_register(
             self,
-            registeraddress: int,
-            count: int = 1,
-            functioncode: int = 4, # default for input register. The user needs to change the functioncode to 3 if they want to read the holding register!
-            no_response_expected: bool = False,
-            deviceId: int = 1
+            deviceaddress: int,
+            functioncode: int,
+            startingaddress: int,
+            quantity: int
     ):
 
-        # print(f"deviceaddress: {hex(registeraddress)}, functioncode: {hex(functioncode)}, ")
+        # WRITING DATA
+        startingaddressHi, startingaddressLi = self.split_hi_li(data=startingaddress)
+        quantityHi, quantityLi = self.split_hi_li(data=quantity)
+
+        dataPack = bytearray([deviceaddress, functioncode, startingaddressHi, startingaddressLi, quantityHi, quantityLi])
+
+        crc_hi, crc_li = self.get_crc_ccitt_16(data=dataPack)
+
+        # add the crc_hi and crc_li into the end of the datapack
+        dataPack.extend([crc_hi, crc_li])
+
+        # dataPack ready to be sent by serial.write(dataPack)
+
+        # RECEIVING DATA AS A RESPONSE
+        # accept = serial.read(...)
+        """
+        numOfIncomingData = serial.in_waiting
+        if numOfIncomingData > 0:
+            data = serial.read(numOfIncomingData)
         
-        # try to read the temperature data
-        # self.socket.write(bytearray([0x01, 0x04, 0x00, 0x01, 0x00, 0x01, 0x60, 0x0A]))
-
-        
-
-        # time.sleep(0.1)
-
-        waiting = self.socket.in_waiting
-        if waiting > 0:
-            data = self.socket.read(waiting)
             print(f"Data: {data}")
 
-            print(f"Drained {len(data)} bytes from buffer!")
+            # check the crc
+            original_crc = self.merge_hi_li(data[-2], data[-1])
+            generated_crc = self.get_crc_ccitt_16(data=original_crc)
 
-        # Clear input buffer
-        self.socket.reset_input_buffer()
+            # Why -4 and -3 index? Because the pattern is fixed (the value high and low data is stored literally before the crc_hi part)
+            mainData = self.merge_hi_li(data[-4], data[-3])
 
-        # Clear output buffer (discard unsent data)
-        self.socket.reset_output_buffer()
+            if original_crc == generated_crc:
+                return data / 10 # because originally, the given data is still 10x of the original data
+            else:
+                print(f"CRC Error: CRC Does Not Match!")
+                return None
 
-        # determine the argument of this function first!
-        # return self.execute(
-        #     no_response_expected,
-        #     ReadRegisterRequest(address=registeraddress, count=count, deviceId=deviceId, functioncode=functioncode)
-        # ) 
+        """
+
+
+
 
     def write_register(
             self,
@@ -272,6 +295,8 @@ class Client:
             functioncode: int = 6
     ):
         # determine the argument of this function first!
+
+        # DIFFERENT: The return value status, it could be nothing or any Error. So this needs to be plan for the function structure
 
         return True
 
@@ -285,22 +310,76 @@ def connectToClient(port):
         print(f"Port {port} Failed to Connect!")
         exit(1)
 
+def get_crc_ccitt_16(data):
+    # crc 16 references: https://www.askpython.com/python/examples/crc-16-bit-manual-calculation
+
+    crc = 0xFFFF
+    for byte in data:
+        crc ^= (byte << 8)
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = (crc << 1) ^ 0x1021
+            else:
+                crc <<= 1
+
+            crc &= 0xFFFF
+
+    return crc >> 8, crc & 0xFF # 0: High Byte, 1: Low Byte
+
+def split_hi_li(data: int) -> int:
+
+    return data >> 8, data & 0xFF 
+
+def read_register_v2( 
+            deviceaddress: int,
+            functioncode: int,
+            startingaddress: int,
+            quantity: int
+    ):
+        startingaddressHi, startingaddressLi = split_hi_li(data=startingaddress)
+        quantityHi, quantityLi = split_hi_li(data=quantity)
+        print(f"{deviceaddress:#X}\n{functioncode:#X}")
+        print(f"{startingaddressHi:#X} + {startingaddressLi:#X}\n{quantityHi:#X} + {quantityLi:#X}")
+
+        dataPack = bytearray([deviceaddress, functioncode, startingaddressHi, startingaddressLi, quantityHi, quantityLi])
+
+        crc_hi, crc_li = get_crc_ccitt_16(data=dataPack)
+
+        dataPack.extend([crc_hi, crc_li])
+
+        print(dataPack)
+
+        # accessing the last byte, which is the crc_li
+        print(f"{dataPack[7]:#X}")
+
+        # later, to get the dataPack size, use serial.in_waiting property
+
 def main() -> None:
     port = "/dev/ttyUSB0"
 
-    client = connectToClient(port=port)
+    # client = connectToClient(port=port)
 
-    client.read_register(
-        registeraddress=1,
-        count=1,
-        functioncode=4
+    # client.read_register(
+    #     registeraddress=1,
+    #     count=1,
+    #     functioncode=4
+    # )
+
+    read_register_v2(
+        deviceaddress=1,
+        functioncode=4,
+        startingaddress=1,
+        quantity=1
     )
 
-    # TEST THE CRC FIRST
-    data = b'Hello, World!'
-    crc_16 = client.get_crc_ccitt_16(data)
+    # Good Source
+    # https://www.wevolver.com/article/modbus-rtu-a-comprehensive-guide-to-understanding-and-implementing-the-protocol
 
-    print(f"CRC Hi: 0x{crc_16[0]:02X}, CRC Li: 0x{crc_16[1]:02X}")
+    # TEST THE CRC FIRST
+    # data = b'Hello, World!'
+    # crc_16 = client.get_crc_ccitt_16(data)
+
+    # print(f"CRC Hi: 0x{crc_16[0]:02X}, CRC Li: 0x{crc_16[1]:02X}")
 
 if __name__ == "__main__":
     main()
