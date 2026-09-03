@@ -158,7 +158,7 @@ class Client:
         )
         self.comm_params.host = port
 
-        self.socket: serial.Serial | None = None 
+        self.socket: serial.Serial 
 
         # _[variable name] --> A temporary variable!
         self._t0 = float(1 + byteSize + stopBits) / baudRate
@@ -182,21 +182,23 @@ class Client:
 
         """Connect to the modbus serial server!"""
 
-        if self.socket:
-            return True 
+        # if self.socket:
+            # return True 
 
         try:
-            self.socket = serial.serial_for_url(
-                url=self.comm_params.host, # example: "/dev/ttyUSB0"
-                timeout=self.comm_params.timeout,
-                bytesize=self.comm_params.bytesize,
-                stopbits=self.comm_params.stopbits,
-                baudrate=self.comm_params.baudrate,
-                parity=self.comm_params.parity,
-                exclusive=True # it's defined in the pymodbus code...
-            )
+            # self.socket = serial.serial_for_url(
+            #     url=self.comm_params.host, # example: "/dev/ttyUSB0"
+            #     timeout=self.comm_params.timeout,
+            #     bytesize=self.comm_params.bytesize,
+            #     stopbits=self.comm_params.stopbits,
+            #     baudrate=self.comm_params.baudrate,
+            #     parity=self.comm_params.parity,
+            #     exclusive=True # it's defined in the pymodbus code...
+            # )
 
-            self.socket.inter_byte_timeout = self.inter_byte_timeout
+            self.socket = serial.Serial("/dev/ttyUSB0", self.comm_params.baudrate)
+
+            # self.socket.inter_byte_timeout = self.inter_byte_timeout
 
         except Exception as e:
             print(f"Error: {e}")
@@ -226,44 +228,119 @@ class Client:
 
                 crc &= 0xFFFF
 
-        return [crc >> 8, crc & 0x0FF] # 0: High Byte, 1: Low Byte
+        return crc >> 8, crc & 0xFF # 0: High Byte, 1: Low Byte
+
+    def split_hi_li(self, data: int) -> int:
+
+        return data >> 8, data & 0xFF   
+
+    def merge_hi_li(self, hi, li):
+
+        # for splitting, it;s
+        # hi = data >> 8, li & 0xFF
+
+        # this process basically the reverse process of the top data 
+        return (hi << 8) | li
+
+    def write_with_confirm(self, ser, data, expected=b'OK', timeout=2):
+        """Write data and wait for a confirmation response."""
+        ser.reset_input_buffer()
+        ser.write(data)
+        ser.flush()
+
+        response = b''
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            if ser.in_waiting:
+                response += ser.read(ser.in_waiting)
+                if expected in response:
+                    return True, response
+            time.sleep(0.01)
+        return False, response
 
     def read_register(
             self,
-            registeraddress: int,
-            count: int = 1,
-            functioncode: int = 4, # default for input register. The user needs to change the functioncode to 3 if they want to read the holding register!
-            no_response_expected: bool = False,
-            deviceId: int = 1
+            deviceaddress: bytes,
+            functioncode: bytes,
+            startingaddress : bytes,
+            quantity: bytes
     ):
 
-        # print(f"deviceaddress: {hex(registeraddress)}, functioncode: {hex(functioncode)}, ")
-        
-        # try to read the temperature data
-        # self.socket.write(bytearray([0x01, 0x04, 0x00, 0x01, 0x00, 0x01, 0x60, 0x0A]))
+        # WRITING DATA
+        startingaddressHi, startingaddressLi = self.split_hi_li(data=startingaddress)
+        quantityHi, quantityLi = self.split_hi_li(data=quantity)
 
-        
+        dataPack = bytearray([deviceaddress, functioncode, startingaddressHi, startingaddressLi, quantityHi, quantityLi])
 
-        # time.sleep(0.1)
+        crc_hi, crc_li = self.get_crc_ccitt_16(data=dataPack)
 
-        waiting = self.socket.in_waiting
-        if waiting > 0:
-            data = self.socket.read(waiting)
+        # add the crc_hi and crc_li into the end of the datapack
+        dataPack.extend([crc_hi, crc_li])
+
+        print(f"dataPack: {dataPack}")
+
+        # dataPack ready to be sent by serial.write(dataPack)
+        # self.socket.write(dataPack)
+        # self.socket.write(b"\x01\x04\x00\x01\x00\x01\xe5\xa7") # hard code trial
+
+        # Debugging the Process!
+        ok, resp = self.write_with_confirm(ser=self.socket, data=dataPack)
+        print(f"Confirmed: {ok}")
+
+        print(f"Number: {self.socket.in_waiting}")
+
+        # RECEIVING DATA AS A RESPONSE
+        numOfIncomingData = self.socket.in_waiting
+        if numOfIncomingData > 0:
+            print("Data Exist")
+
+        else:
+            print("Data Not Exist")
+            """
+            
+            data = self.socket.read(numOfIncomingData)
+
             print(f"Data: {data}")
 
-            print(f"Drained {len(data)} bytes from buffer!")
+            # check the crc
+            original_crc = self.merge_hi_li(data[-2], data[-1])
+            generated_crc = self.get_crc_ccitt_16(data=original_crc)
 
-        # Clear input buffer
-        self.socket.reset_input_buffer()
+            # Why -4 and -3 index? Because the pattern is fixed (the value high and low data is stored literally before the crc_hi part)
+            mainData = self.merge_hi_li(data[-4], data[-3])
 
-        # Clear output buffer (discard unsent data)
-        self.socket.reset_output_buffer()
+            return mainData
 
-        # determine the argument of this function first!
-        # return self.execute(
-        #     no_response_expected,
-        #     ReadRegisterRequest(address=registeraddress, count=count, deviceId=deviceId, functioncode=functioncode)
-        # ) 
+            if original_crc == generated_crc:
+                return mainData / 10 # because originally, the given data is still 10x of the original data
+            else:
+                print(f"CRC Error: CRC Does Not Match!")
+                return None
+            """
+
+        """
+        numOfIncomingData = serial.in_waiting
+        if numOfIncomingData > 0:
+            data = serial.read(numOfIncomingData)
+        
+            print(f"Data: {data}")
+
+            # check the crc
+            original_crc = self.merge_hi_li(data[-2], data[-1])
+            generated_crc = self.get_crc_ccitt_16(data=original_crc)
+
+            # Why -4 and -3 index? Because the pattern is fixed (the value high and low data is stored literally before the crc_hi part)
+            mainData = self.merge_hi_li(data[-4], data[-3])
+
+            if original_crc == generated_crc:
+                return data / 10 # because originally, the given data is still 10x of the original data
+            else:
+                print(f"CRC Error: CRC Does Not Match!")
+                return None
+        """
+
+
+
 
     def write_register(
             self,
@@ -272,6 +349,8 @@ class Client:
             functioncode: int = 6
     ):
         # determine the argument of this function first!
+
+        # DIFFERENT: The return value status, it could be nothing or any Error. So this needs to be plan for the function structure
 
         return True
 
@@ -285,22 +364,75 @@ def connectToClient(port):
         print(f"Port {port} Failed to Connect!")
         exit(1)
 
+def get_crc_ccitt_16(data):
+    # crc 16 references: https://www.askpython.com/python/examples/crc-16-bit-manual-calculation
+
+    crc = 0xFFFF
+    for byte in data:
+        crc ^= (byte << 8)
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = (crc << 1) ^ 0x1021
+            else:
+                crc <<= 1
+
+            crc &= 0xFFFF
+
+    return crc >> 8, crc & 0xFF # 0: High Byte, 1: Low Byte
+
+def split_hi_li(data: int) -> int:
+
+    return data >> 8, data & 0xFF 
+
+def read_register_v2( 
+            deviceaddress: int,
+            functioncode: int,
+            startingaddress: int,
+            quantity: int
+    ):
+        startingaddressHi, startingaddressLi = split_hi_li(data=startingaddress)
+        quantityHi, quantityLi = split_hi_li(data=quantity)
+        print(f"{deviceaddress:#X}\n{functioncode:#X}")
+        print(f"{startingaddressHi:#X} + {startingaddressLi:#X}\n{quantityHi:#X} + {quantityLi:#X}")
+
+        dataPack = bytearray([deviceaddress, functioncode, startingaddressHi, startingaddressLi, quantityHi, quantityLi])
+
+        crc_hi, crc_li = get_crc_ccitt_16(data=dataPack)
+
+        dataPack.extend([crc_hi, crc_li])
+
+        print(dataPack)
+
+        # accessing the last byte, which is the crc_li
+        print(f"{dataPack[7]:#X}")
+
+        # later, to get the dataPack size, use serial.in_waiting property
+
 def main() -> None:
     port = "/dev/ttyUSB0"
 
     client = connectToClient(port=port)
 
-    client.read_register(
-        registeraddress=1,
-        count=1,
-        functioncode=4
+    # print(client.socket.wi)
+
+    temperature = client.read_register(
+        deviceaddress=0x01,
+        functioncode=0x04,
+        startingaddress=0x01, # temperature data
+        quantity=0x01 # default value
     )
 
+    print(f"Temperature: {temperature}")
+
+    # Good Source
+    # https://www.wevolver.com/article/modbus-rtu-a-comprehensive-guide-to-understanding-and-implementing-the-protocol
+
     # TEST THE CRC FIRST
-    data = b'Hello, World!'
-    crc_16 = client.get_crc_ccitt_16(data)
+    # data = b'Hello, World!'
+    # crc_16 = client.get_crc_ccitt_16(data)
 
-    print(f"CRC Hi: 0x{crc_16[0]:02X}, CRC Li: 0x{crc_16[1]:02X}")
+    # print(f"CRC Hi: 0x{crc_16[0]:02X}, CRC Li: 0x{crc_16[1]:02X}")
 
+# NEXT: TRY TO RUN IT IN THE RASPI!
 if __name__ == "__main__":
     main()

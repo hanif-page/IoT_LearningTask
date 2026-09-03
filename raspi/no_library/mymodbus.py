@@ -262,7 +262,25 @@ class Client:
         # dataPack ready to be sent by serial.write(dataPack)
 
         # RECEIVING DATA AS A RESPONSE
-        # accept = serial.read(...)
+        numOfIncomingData = self.socket.in_waiting
+        if numOfIncomingData > 0:
+            data = self.socket.read(numOfIncomingData)
+
+            print(f"Data: {data}")
+
+            # check the crc
+            original_crc = self.merge_hi_li(data[-2], data[-1])
+            generated_crc = self.get_crc_ccitt_16(data=original_crc)
+
+            # Why -4 and -3 index? Because the pattern is fixed (the value high and low data is stored literally before the crc_hi part)
+            mainData = self.merge_hi_li(data[-4], data[-3])
+
+            if original_crc == generated_crc:
+                return mainData / 10 # because originally, the given data is still 10x of the original data
+            else:
+                print(f"CRC Error: CRC Does Not Match!")
+                return None
+
         """
         numOfIncomingData = serial.in_waiting
         if numOfIncomingData > 0:
@@ -282,7 +300,6 @@ class Client:
             else:
                 print(f"CRC Error: CRC Does Not Match!")
                 return None
-
         """
 
 
@@ -357,20 +374,16 @@ def read_register_v2(
 def main() -> None:
     port = "/dev/ttyUSB0"
 
-    # client = connectToClient(port=port)
+    client = connectToClient(port=port)
 
-    # client.read_register(
-    #     registeraddress=1,
-    #     count=1,
-    #     functioncode=4
-    # )
-
-    read_register_v2(
+    temperature = client.read_register(
         deviceaddress=1,
         functioncode=4,
-        startingaddress=1,
-        quantity=1
+        startingaddress=1, # temperature data
+        quantity=1 # default value
     )
+
+
 
     # Good Source
     # https://www.wevolver.com/article/modbus-rtu-a-comprehensive-guide-to-understanding-and-implementing-the-protocol
