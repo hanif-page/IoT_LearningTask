@@ -6,4 +6,5 @@ myproject.egg-info/dependency_links.txt
 myproject.egg-info/top_level.txt
 package/__init__.py
 package/database.py
+package/mymodbus.py
 package/sensordata.py

@@ -11,10 +11,9 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QCoreApplication, QTimer
 from ui_mainwindow import Ui_MainWindow
 
-
 from raspi.library.pymodbus.main_usb import PyModbusModule # importing the class!
 from raspi.library.minimal_modbus.main_usb import MinimalModbusModule # importing the class!
-# from raspi.no_library import main_usb as pyserial # but this still won't work because I haven't develop it!
+from raspi.no_library.main_usb import MyModbusModule # but this still won't work because I haven't develop it!
 
 class MainWindow(QMainWindow):
     def __init__(self, modbusModule, modbusClient, baudRate: int):
@@ -106,9 +105,14 @@ class MainWindow(QMainWindow):
 
             self.setWindowTitle("Minimalmodbus")
         elif newLibrary == "Serial (no library)":
-            self.setWindowTitle("Serial [NOT YET DEVELOPED]")
+            self.setWindowTitle("Mymodbus (Pyserial)")
 
-            exit(1)
+            # MYMODBUS MODULE (Py Serial)
+            mymodbus = MyModbusModule(port=newPort, baudRate=self.baudRate, deviceAddress=1)
+            mymodbusClient = mymodbus.connectToClient()   
+
+            self.modbusModule = mymodbus
+            self.modbusClient = mymodbusClient         
             
     def runMonitorDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.monitorDisplay)

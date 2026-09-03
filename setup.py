@@ -15,7 +15,7 @@ source .venv/bin/activate # activate the environment!
 which python # check if the python comes from the .venv/bin folder!
 
 # install any dependencies
-pip install -e .m # set package/* to an absolute position, which later can be access from any python file under this project root
+pip install -e . # set package/* to an absolute position, which later can be access from any python file under this project root
 pip install -r requirements.txt # if the requirements.txt is exist and you want to install all the packages inside
 
 # set all dependencies to the requirements.txt file (if you are setting up for the first time)
