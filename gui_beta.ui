@@ -314,97 +314,6 @@ color: red</string>
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="timeBaseDataOption">
-     <widget class="QGroupBox" name="plotContainer">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>781</width>
-        <height>351</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: black;
-border-style: outset;
-border-width: 1px;
-border-radius: 5px;
-border-color: black</string>
-      </property>
-      <property name="title">
-       <string/>
-      </property>
-      <widget class="QLabel" name="label_11">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>751</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: black;
-border-color: white</string>
-       </property>
-       <property name="text">
-        <string>Please Select One:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-      <widget class="QGroupBox" name="option_layout_4">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>60</y>
-         <width>761</width>
-         <height>281</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">border-color: white</string>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <widget class="QPushButton" name="exit_button_4">
-        <property name="geometry">
-         <rect>
-          <x>650</x>
-          <y>240</y>
-          <width>101</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: red;
-color: white;
-border-radius: 5px</string>
-        </property>
-        <property name="text">
-         <string>Exit</string>
-        </property>
-       </widget>
-      </widget>
-     </widget>
-    </widget>
     <widget class="QWidget" name="optionDisplay">
      <widget class="QGroupBox" name="option_container">
       <property name="geometry">
@@ -447,7 +356,7 @@ border-color: black</string>
 border-color: white</string>
        </property>
        <property name="text">
-        <string>Please Select One:</string>
+        <string>IoT Modbus Main Panel</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -649,6 +558,58 @@ border-color: rgb(85, 0, 255);</string>
         </property>
         <property name="text">
          <string>Disable</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="sftp_not_connected_msg">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>250</y>
+          <width>581</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <italic>true</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-color: white;
+color: red;
+background: transparent;</string>
+        </property>
+        <property name="text">
+         <string>*The Target Backup Computer Is Not Connected! (Please Click Enable)</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="sftp_connected_msg">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>250</y>
+          <width>631</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <italic>true</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-color: white;
+color: green;
+background: transparent</string>
+        </property>
+        <property name="text">
+         <string>Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.</string>
         </property>
        </widget>
       </widget>
@@ -1037,6 +998,154 @@ opacity: 50%;
          <string>9600</string>
         </property>
        </widget>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="timeBaseDataOptionDisplay">
+     <widget class="QGroupBox" name="plotContainer">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>781</width>
+        <height>351</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: black;
+border-style: outset;
+border-width: 1px;
+border-radius: 5px;
+border-color: black</string>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QLabel" name="label_11">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>351</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: black;
+border-color: white</string>
+       </property>
+       <property name="text">
+        <string>Please Select Date Target</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="option_layout_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>761</width>
+         <height>291</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border-color: white</string>
+       </property>
+       <property name="title">
+        <string/>
+       </property>
+       <widget class="QPushButton" name="exit_button_4">
+        <property name="geometry">
+         <rect>
+          <x>650</x>
+          <y>250</y>
+          <width>111</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: red;
+color: white;
+border-radius: 5px</string>
+        </property>
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="plotData_container">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>761</width>
+          <height>241</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-style: outset;
+border-width: 1px;
+border-radius: 5px;
+border-color: black</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QPushButton" name="generate_data_button">
+       <property name="geometry">
+        <rect>
+         <x>520</x>
+         <y>10</y>
+         <width>251</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>13</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: white;
+background-color: blue;
+border-radius: 5px</string>
+       </property>
+       <property name="text">
+        <string>Generate Time-Base Data</string>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="dateInput">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>10</y>
+         <width>110</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="displayFormat">
+        <string>dd/MM/yyyy</string>
+       </property>
       </widget>
      </widget>
     </widget>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'gui.ui'
+## Form generated from reading UI file 'gui_beta.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -16,10 +16,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QHeaderView,
-    QLabel, QMainWindow, QMenu, QMenuBar,
-    QPushButton, QSizePolicy, QStackedWidget, QStatusBar,
-    QTableWidget, QTableWidgetItem, QTextEdit, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDateEdit, QGroupBox,
+    QHeaderView, QLabel, QMainWindow, QMenu,
+    QMenuBar, QPushButton, QSizePolicy, QStackedWidget,
+    QStatusBar, QTableWidget, QTableWidgetItem, QTextEdit,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -178,6 +179,57 @@ class Ui_MainWindow(object):
 "border-width: 1px;\n"
 "border-radius: 5px;\n"
 "border-color: rgb(85, 0, 255);")
+        self.display_time_base_data_button = QPushButton(self.option_layout)
+        self.display_time_base_data_button.setObjectName(u"display_time_base_data_button")
+        self.display_time_base_data_button.setGeometry(QRect(10, 90, 741, 41))
+        self.display_time_base_data_button.setFont(font6)
+        self.display_time_base_data_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.sftp_enable_button = QPushButton(self.option_layout)
+        self.sftp_enable_button.setObjectName(u"sftp_enable_button")
+        self.sftp_enable_button.setGeometry(QRect(10, 200, 91, 41))
+        self.sftp_enable_button.setFont(font6)
+        self.sftp_enable_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.label_3 = QLabel(self.option_layout)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setGeometry(QRect(0, 160, 751, 21))
+        self.label_3.setFont(font5)
+        self.label_3.setStyleSheet(u"color: black;\n"
+"border-color: white")
+        self.label_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.sftp_disable_button = QPushButton(self.option_layout)
+        self.sftp_disable_button.setObjectName(u"sftp_disable_button")
+        self.sftp_disable_button.setGeometry(QRect(110, 200, 91, 41))
+        self.sftp_disable_button.setFont(font6)
+        self.sftp_disable_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.sftp_not_connected_msg = QLabel(self.option_layout)
+        self.sftp_not_connected_msg.setObjectName(u"sftp_not_connected_msg")
+        self.sftp_not_connected_msg.setGeometry(QRect(0, 250, 581, 21))
+        self.sftp_not_connected_msg.setFont(font4)
+        self.sftp_not_connected_msg.setStyleSheet(u"border-color: white;\n"
+"color: red;\n"
+"background: transparent;")
+        self.sftp_connected_msg = QLabel(self.option_layout)
+        self.sftp_connected_msg.setObjectName(u"sftp_connected_msg")
+        self.sftp_connected_msg.setGeometry(QRect(0, 250, 631, 21))
+        self.sftp_connected_msg.setFont(font4)
+        self.sftp_connected_msg.setStyleSheet(u"border-color: white;\n"
+"color: green;\n"
+"background: transparent")
         self.stackedWidget.addWidget(self.optionDisplay)
         self.monitorDisplay = QWidget()
         self.monitorDisplay.setObjectName(u"monitorDisplay")
@@ -327,6 +379,52 @@ class Ui_MainWindow(object):
         self.newBaudRate_value.setFont(font9)
         self.newBaudRate_value.setStyleSheet(u"border-color: white; color: red")
         self.stackedWidget.addWidget(self.controlDisplay)
+        self.timeBaseDataOptionDisplay = QWidget()
+        self.timeBaseDataOptionDisplay.setObjectName(u"timeBaseDataOptionDisplay")
+        self.plotContainer = QGroupBox(self.timeBaseDataOptionDisplay)
+        self.plotContainer.setObjectName(u"plotContainer")
+        self.plotContainer.setGeometry(QRect(0, 0, 781, 351))
+        self.plotContainer.setStyleSheet(u"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: black")
+        self.label_11 = QLabel(self.plotContainer)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(10, 10, 351, 31))
+        self.label_11.setFont(font5)
+        self.label_11.setStyleSheet(u"color: black;\n"
+"border-color: white")
+        self.label_11.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.option_layout_4 = QGroupBox(self.plotContainer)
+        self.option_layout_4.setObjectName(u"option_layout_4")
+        self.option_layout_4.setGeometry(QRect(10, 50, 761, 291))
+        self.option_layout_4.setStyleSheet(u"border-color: white")
+        self.exit_button_4 = QPushButton(self.option_layout_4)
+        self.exit_button_4.setObjectName(u"exit_button_4")
+        self.exit_button_4.setGeometry(QRect(650, 250, 111, 31))
+        self.exit_button_4.setFont(font7)
+        self.exit_button_4.setStyleSheet(u"background-color: red;\n"
+"color: white;\n"
+"border-radius: 5px")
+        self.plotData_container = QGroupBox(self.option_layout_4)
+        self.plotData_container.setObjectName(u"plotData_container")
+        self.plotData_container.setGeometry(QRect(0, 0, 761, 241))
+        self.plotData_container.setStyleSheet(u"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: black")
+        self.generate_data_button = QPushButton(self.plotContainer)
+        self.generate_data_button.setObjectName(u"generate_data_button")
+        self.generate_data_button.setGeometry(QRect(520, 10, 251, 31))
+        self.generate_data_button.setFont(font1)
+        self.generate_data_button.setStyleSheet(u"color: white;\n"
+"background-color: blue;\n"
+"border-radius: 5px")
+        self.dateInput = QDateEdit(self.plotContainer)
+        self.dateInput.setObjectName(u"dateInput")
+        self.dateInput.setGeometry(QRect(400, 10, 110, 31))
+        self.stackedWidget.addWidget(self.timeBaseDataOptionDisplay)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -370,11 +468,17 @@ class Ui_MainWindow(object):
         self.port_error_msg.setText(QCoreApplication.translate("MainWindow", u"*Error When Accessing Port. Please set the correct Port!", None))
         self.library_error_msg.setText(QCoreApplication.translate("MainWindow", u"*Error When Using Library. Please use the other Library!", None))
         self.option_container.setTitle("")
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Please Select One:", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"IoT Modbus Main Panel", None))
         self.option_layout.setTitle("")
         self.monitor_button.setText(QCoreApplication.translate("MainWindow", u"Monitor", None))
         self.exit_button.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.control_button.setText(QCoreApplication.translate("MainWindow", u"Control", None))
+        self.display_time_base_data_button.setText(QCoreApplication.translate("MainWindow", u"Display Time-Base Data", None))
+        self.sftp_enable_button.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"SFTP Backup Routine", None))
+        self.sftp_disable_button.setText(QCoreApplication.translate("MainWindow", u"Disable", None))
+        self.sftp_not_connected_msg.setText(QCoreApplication.translate("MainWindow", u"*The Target Backup Computer Is Not Connected! (Please Click Enable)", None))
+        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.", None))
         self.monitor_data_timestamp.setText(QCoreApplication.translate("MainWindow", u"MONITOR DATA (%Y-%m-%d %H:%M:%S)", None))
         self.stopAndSave_button.setText(QCoreApplication.translate("MainWindow", u"Stop Monitoring and Save Data", None))
         self.monitor_data_layout.setTitle("")
@@ -418,6 +522,13 @@ class Ui_MainWindow(object):
         self.baudRate_updated_text.setTitle("")
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"*Baud Rate Changed To: ", None))
         self.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"9600", None))
+        self.plotContainer.setTitle("")
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Please Select Date Target", None))
+        self.option_layout_4.setTitle("")
+        self.exit_button_4.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
+        self.plotData_container.setTitle("")
+        self.generate_data_button.setText(QCoreApplication.translate("MainWindow", u"Generate Time-Base Data", None))
+        self.dateInput.setDisplayFormat(QCoreApplication.translate("MainWindow", u"dd/MM/yyyy", None))
         self.menuDev.setTitle(QCoreApplication.translate("MainWindow", u"Dev", None))
     # retranslateUi
 
