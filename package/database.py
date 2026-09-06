@@ -90,19 +90,22 @@ class MySQLData:
                 return False
 
     def getDataList(self):
-        # this is Mandatory! We need to define the cursor function into a variable that might needs to be called later! (with the same .cursor() call)
-        mycursor = self.mydb.cursor(dictionary=True) # dictionary=True making the cursor output into a dictionary, not tuple
+        try:
 
-        mycursor.execute(f"SELECT * FROM {self.tableName}")
+            # this is Mandatory! We need to define the cursor function into a variable that might needs to be called later! (with the same .cursor() call)
+            mycursor = self.mydb.cursor(dictionary=True) # dictionary=True making the cursor output into a dictionary, not tuple
 
-        dataList = []
+            mycursor.execute(f"SELECT * FROM {self.tableName}")
 
-        # return mycursor
-        for x in mycursor:
-            dataList.append(x)
+            dataList = []
 
-        return dataList
+            # return mycursor
+            for x in mycursor:
+                dataList.append(x)
 
+            return dataList
+        except Exception as e:
+            print(f"Error: {e}")
 
     def printTableContent(self):
 

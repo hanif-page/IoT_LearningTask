@@ -142,6 +142,11 @@ class PyModbusModule:
         print("--------------------------------------------------")
 
         return newData # returning the data in form of Dictionary!
+    def getListOfData(self):
+        MySQLSensorData = MySQLData(databaseName="iot_task", tableName="pymodbus_data") # in terms of efficiency, this shouldn't be called every time!
+
+        if MySQLSensorData.connectToMySQL():
+            return MySQLSensorData.getDataList()
 
 def connectToClient(port, baudRate):
     client = ModbusSerialClient(port=port, timeout=2, baudrate=baudRate, bytesize=8, parity="N", stopbits=1)

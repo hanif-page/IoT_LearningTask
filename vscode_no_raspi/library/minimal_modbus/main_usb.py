@@ -145,6 +145,12 @@ class MinimalModbusModule:
 
         return newData # returning the data in form of Dictionary
 
+    def getListOfData(self):
+        MySQLSensorData = MySQLData(databaseName="iot_task", tableName="minimalmodbus_data") # in terms of efficiency, this shouldn't be called every time!
+
+        if MySQLSensorData.connectToMySQL():
+            return MySQLSensorData.getDataList()
+
 def connectToInstrument(baudRate, port, deviceAddress):
     try:
         instrument = minimalmodbus.Instrument(port=port, slaveaddress=deviceAddress)

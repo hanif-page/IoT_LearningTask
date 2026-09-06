@@ -7,10 +7,9 @@
 # https://doc.qt.io/qtforpython-6/tutorials/basictutorial/uifiles.html (converting ui to py file)
 
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QCoreApplication, QTimer
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PySide6.QtCore import QCoreApplication, QTimer, Qt
 from ui_mainwindow_beta import Ui_MainWindow
-
 
 from vscode_no_raspi.library.pymodbus.main_usb import PyModbusModule # importing the class!
 from vscode_no_raspi.library.minimal_modbus.main_usb import MinimalModbusModule # importing the class!
@@ -18,17 +17,15 @@ from vscode_no_raspi.no_library.main_usb import MyModbusModule
 
 # MATPLOTLIB CANVAS
 # https://www.pythonguis.com/tutorials/pyside6-plotting-matplotlib/
-
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
 
 class MatplotlibCanvas(FigureCanvas):
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=10, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
         super().__init__(fig)
-
 
 class MainWindow(QMainWindow):
     def __init__(self, modbusModule, modbusClient, baudRate: int):
@@ -75,14 +72,8 @@ class MainWindow(QMainWindow):
         self.ui.exit_button_4.clicked.connect(self.stopTimeBaseDataDisplay)
 
         # When Generate Time-Base Data Button clicked
-        self.ui.generate_data_button.clicked.connect(lambda: print(f"Date: {self.ui.dateInput.date().day()}-{self.ui.dateInput.date().month()}-{self.ui.dateInput.date().year()}"))
-
-        # Generate Time Base Chart
-        # NOTE: Try this next https://stackoverflow.com/questions/63785150/displaying-matplotlib-charts-in-groupbox-in-pyqt5 
-        sc = MatplotlibCanvas(self, width=5, height=4, dpi=100)
-        sc.axes.plot([0,1,2,3,4], [10,1,20,3,40])
-        # self.setCentralWidget(sc)
-        self.ui.plotData_container.setLayout(sc)
+        # self.ui.generate_data_button.clicked.connect(lambda: print(f"Date: {self.ui.dateInput.date().day()}-{self.ui.dateInput.date().month()}-{self.ui.dateInput.date().year()}"))
+        self.ui.generate_data_button.clicked.connect(lambda: self.updateTimeBaseDataDisplay(self.ui.dateInput.date().day(), self.ui.dateInput.date().month(), self.ui.dateInput.date().year()))
 
         self.show()
 
@@ -236,14 +227,62 @@ class MainWindow(QMainWindow):
     def runTimeBaseDataDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.timeBaseDataOptionDisplay)
         self.ui.update_settings_button.setEnabled(False) # disabling the setting button outside the Option Display!
+    def filterTimeBaseData(self, dd, mm, yy, listOfData):
+        filteredTimeData = []
+        filteredTemperatureData = []
+        filteredHumidityData = []
+
+        for data in listOfData:
+            splittedDate = data["date"].split("-")
+            if int(splittedDate[0]) == yy and int(splittedDate[1]) == mm and int(splittedDate[2]) == dd:
+                print(data["time"])
+
+                filteredTimeData.append(data["time"])
+                filteredTemperatureData.append(data["temperature"])
+                filteredHumidityData.append(data["humidity"])
+
+        return filteredTimeData, filteredTemperatureData, filteredHumidityData
+    def updateTimeBaseDataDisplay(self, dd, mm, yy):
+        print(f"Generate Button Clicked! {dd}-{mm}-{yy}")
+
+        listOfData = self.modbusModule.getListOfData()
+
+        timeData, temperatureData, humidityData = self.filterTimeBaseData(dd, mm, yy, listOfData=listOfData)
+
+        # Generate Time Base Chart
+        # NOTE: Try this next https://stackoverflow.com/questions/63785150/displaying-matplotlib-charts-in-groupbox-in-pyqt5 
+        sc = MatplotlibCanvas(self, width=5, height=10, dpi=82)
+
+        # NOTE: If we have generated a graph, we can't dynamically change the data directly, we need to EXIT and reopen the program to refresh it... 
+        # Possible solution (later, try to debug): https://www.geeksforgeeks.org/python/dynamically-updating-plot-in-matplotlib/
+        sc.axes.clear()
+
+        # https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
+        ax1 = sc.axes
+        ax2 = sc.axes.twinx()
+
+        ax1.axes.plot(timeData, temperatureData, "b")
+        ax2.axes.plot(timeData, humidityData, "g")
+
+        ax1.set_ylabel("Temperature (°C)", color="b")
+        ax2.set_ylabel("Humidity (%RH)", color="g")
+        ax1.set_xlabel("Time")
+
+        for tick in ax1.axes.get_xticklabels():
+            tick.set_rotation(45)
+        # ax1.axes.set_xticklabels(ax1.get_xticks(), rotation=45)
+
+        matplotlibLayout = QVBoxLayout()
+        matplotlibLayout.addWidget(sc)
+        matplotlibLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.ui.plotData_container.setFixedHeight(490)
+        self.ui.plotData_container.setLayout(matplotlibLayout)
 
     def stopTimeBaseDataDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
         self.ui.update_settings_button.setEnabled(True) # enabling the setting button in the Option Display!
 
         print("\nOut from the Time-Base Data Display!\n")
-
-
 
 def main(port: str, baudRate: int) -> None:
     # PYMODBUS MODULE (DEFAULT)
@@ -263,5 +302,5 @@ def main(port: str, baudRate: int) -> None:
 
 if __name__ == "__main__":
     # parameter is the default Port and BaudRate
-    main(port="/dev/ttyUSB0", baudRate=19200)
+    main(port="/dev/ttyUSB0", baudRate=9600)
     # If 19200 does not work, then it already back to 9600!
