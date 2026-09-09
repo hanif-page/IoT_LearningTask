@@ -50,7 +50,7 @@ class PyModbusModule:
             return False
     
     def getMonitoredData(self, client: ModbusSerialClient) -> dict:
-        sensor = SensorData(filePathRelativeToDriver="raspi/library/pymodbus/data") # the sensor data class, takes the target file output path as an argument
+        sensor = SensorData(filePathRelativeToDriver="vscode_no_raspi/library/pymodbus/data") # the sensor data class, takes the target file output path as an argument
         MySQLSensorData = MySQLData(databaseName="iot_task", tableName="pymodbus_data") # in terms of efficiency, this shouldn't be called every time!
 
         strDate = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
