@@ -478,7 +478,7 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"SFTP Backup Routine", None))
         self.sftp_disable_button.setText(QCoreApplication.translate("MainWindow", u"Disable", None))
         self.sftp_not_connected_msg.setText(QCoreApplication.translate("MainWindow", u"*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)", None))
-        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Hour.", None))
+        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 10 Minutes.", None))
         self.exit_button.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.monitor_data_timestamp.setText(QCoreApplication.translate("MainWindow", u"MONITOR DATA (%Y-%m-%d %H:%M:%S)", None))
         self.monitor_data_layout.setTitle("")

@@ -584,7 +584,7 @@ color: green;
 background: transparent</string>
         </property>
         <property name="text">
-         <string>Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Hour.</string>
+         <string>Target Backup Computer Connected! Continuously Backing Up CSV Data Every 10 Minutes.</string>
         </property>
        </widget>
       </widget>

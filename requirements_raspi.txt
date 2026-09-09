@@ -4,7 +4,7 @@ fonttools==4.64.0
 kiwisolver==1.5.1
 matplotlib==3.11.1
 minimalmodbus==2.1.1
--e git+https://github.com/hanif-page/IoT_LearningTask.git@3942b356556b2c6b4d375cedca7a16585cd2640a#egg=myproject
+-e git+https://github.com/hanif-page/IoT_LearningTask.git@20bbd15da93cded643ab0fc6cf918a037bbd3a68#egg=myproject
 mysql-connector-python==26.7.0
 numpy==2.4.6
 packaging==26.3
@@ -17,5 +17,6 @@ PySide6_Addons==6.8.0.2
 PySide6_Essentials==6.8.0.2
 python-crontab==3.4.0
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.3
 shiboken6==6.8.0.2
 six==1.17.0
