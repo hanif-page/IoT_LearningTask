@@ -540,7 +540,7 @@ border-color: rgb(85, 0, 255);</string>
          <rect>
           <x>0</x>
           <y>250</y>
-          <width>581</width>
+          <width>741</width>
           <height>21</height>
          </rect>
         </property>
@@ -558,7 +558,7 @@ color: red;
 background: transparent;</string>
         </property>
         <property name="text">
-         <string>*The Target Backup Computer Is Not Connected! (Please Click Enable)</string>
+         <string>*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)</string>
         </property>
        </widget>
        <widget class="QLabel" name="sftp_connected_msg">
@@ -566,7 +566,7 @@ background: transparent;</string>
          <rect>
           <x>0</x>
           <y>250</y>
-          <width>631</width>
+          <width>741</width>
           <height>21</height>
          </rect>
         </property>
@@ -584,7 +584,7 @@ color: green;
 background: transparent</string>
         </property>
         <property name="text">
-         <string>Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.</string>
+         <string>Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Hour.</string>
         </property>
        </widget>
       </widget>

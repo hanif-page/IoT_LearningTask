@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'gui.ui'
+## Form generated from reading UI file 'gui_beta.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -16,16 +16,17 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QHeaderView,
-    QLabel, QMainWindow, QMenu, QMenuBar,
-    QPushButton, QSizePolicy, QStackedWidget, QStatusBar,
-    QTableWidget, QTableWidgetItem, QTextEdit, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDateEdit, QGroupBox,
+    QHeaderView, QLabel, QMainWindow, QMenu,
+    QMenuBar, QPushButton, QSizePolicy, QStackedWidget,
+    QStatusBar, QTableWidget, QTableWidgetItem, QTextEdit,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(801, 684)
+        MainWindow.resize(801, 915)
         MainWindow.setStyleSheet(u"background-color: white;")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -49,7 +50,7 @@ class Ui_MainWindow(object):
         self.label.setAlignment(Qt.AlignCenter)
         self.groupBox_4 = QGroupBox(self.centralwidget)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        self.groupBox_4.setGeometry(QRect(10, 440, 781, 181))
+        self.groupBox_4.setGeometry(QRect(10, 680, 781, 181))
         self.groupBox_4.setStyleSheet(u"color: black;\n"
 "border-style: outset;\n"
 "border-width: 1px;\n"
@@ -119,13 +120,13 @@ class Ui_MainWindow(object):
 "color: red")
         self.stackedWidget = QStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setGeometry(QRect(10, 80, 781, 351))
+        self.stackedWidget.setGeometry(QRect(10, 80, 781, 591))
         self.stackedWidget.setStyleSheet(u"color: black;")
         self.optionDisplay = QWidget()
         self.optionDisplay.setObjectName(u"optionDisplay")
         self.option_container = QGroupBox(self.optionDisplay)
         self.option_container.setObjectName(u"option_container")
-        self.option_container.setGeometry(QRect(0, 0, 781, 351))
+        self.option_container.setGeometry(QRect(0, 0, 781, 591))
         self.option_container.setStyleSheet(u"color: black;\n"
 "border-style: outset;\n"
 "border-width: 1px;\n"
@@ -158,16 +159,6 @@ class Ui_MainWindow(object):
 "border-width: 1px;\n"
 "border-radius: 5px;\n"
 "border-color: rgb(85, 0, 255);")
-        self.exit_button = QPushButton(self.option_layout)
-        self.exit_button.setObjectName(u"exit_button")
-        self.exit_button.setGeometry(QRect(650, 240, 101, 31))
-        font7 = QFont()
-        font7.setPointSize(12)
-        font7.setBold(True)
-        self.exit_button.setFont(font7)
-        self.exit_button.setStyleSheet(u"background-color: red;\n"
-"color: white;\n"
-"border-radius: 5px")
         self.control_button = QPushButton(self.option_layout)
         self.control_button.setObjectName(u"control_button")
         self.control_button.setGeometry(QRect(390, 30, 361, 41))
@@ -178,6 +169,67 @@ class Ui_MainWindow(object):
 "border-width: 1px;\n"
 "border-radius: 5px;\n"
 "border-color: rgb(85, 0, 255);")
+        self.display_time_base_data_button = QPushButton(self.option_layout)
+        self.display_time_base_data_button.setObjectName(u"display_time_base_data_button")
+        self.display_time_base_data_button.setGeometry(QRect(10, 90, 741, 41))
+        self.display_time_base_data_button.setFont(font6)
+        self.display_time_base_data_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.sftp_enable_button = QPushButton(self.option_layout)
+        self.sftp_enable_button.setObjectName(u"sftp_enable_button")
+        self.sftp_enable_button.setGeometry(QRect(10, 200, 91, 41))
+        self.sftp_enable_button.setFont(font6)
+        self.sftp_enable_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.label_3 = QLabel(self.option_layout)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setGeometry(QRect(0, 160, 751, 21))
+        self.label_3.setFont(font5)
+        self.label_3.setStyleSheet(u"color: black;\n"
+"border-color: white")
+        self.label_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.sftp_disable_button = QPushButton(self.option_layout)
+        self.sftp_disable_button.setObjectName(u"sftp_disable_button")
+        self.sftp_disable_button.setGeometry(QRect(110, 200, 91, 41))
+        self.sftp_disable_button.setFont(font6)
+        self.sftp_disable_button.setStyleSheet(u"background-color: rgb(221, 221, 255);\n"
+"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: rgb(85, 0, 255);")
+        self.sftp_not_connected_msg = QLabel(self.option_layout)
+        self.sftp_not_connected_msg.setObjectName(u"sftp_not_connected_msg")
+        self.sftp_not_connected_msg.setGeometry(QRect(0, 250, 741, 21))
+        self.sftp_not_connected_msg.setFont(font4)
+        self.sftp_not_connected_msg.setStyleSheet(u"border-color: white;\n"
+"color: red;\n"
+"background: transparent;")
+        self.sftp_connected_msg = QLabel(self.option_layout)
+        self.sftp_connected_msg.setObjectName(u"sftp_connected_msg")
+        self.sftp_connected_msg.setGeometry(QRect(0, 250, 741, 21))
+        self.sftp_connected_msg.setFont(font4)
+        self.sftp_connected_msg.setStyleSheet(u"border-color: white;\n"
+"color: green;\n"
+"background: transparent")
+        self.exit_button = QPushButton(self.option_container)
+        self.exit_button.setObjectName(u"exit_button")
+        self.exit_button.setGeometry(QRect(660, 550, 111, 31))
+        font7 = QFont()
+        font7.setPointSize(12)
+        font7.setBold(True)
+        self.exit_button.setFont(font7)
+        self.exit_button.setStyleSheet(u"background-color: red;\n"
+"color: white;\n"
+"border-radius: 5px")
         self.stackedWidget.addWidget(self.optionDisplay)
         self.monitorDisplay = QWidget()
         self.monitorDisplay.setObjectName(u"monitorDisplay")
@@ -191,19 +243,9 @@ class Ui_MainWindow(object):
         self.monitor_data_timestamp.setFont(font5)
         self.monitor_data_timestamp.setStyleSheet(u"border-color: white")
         self.monitor_data_timestamp.setAlignment(Qt.AlignCenter)
-        self.stopAndSave_button = QPushButton(self.monitorDisplay)
-        self.stopAndSave_button.setObjectName(u"stopAndSave_button")
-        self.stopAndSave_button.setGeometry(QRect(520, 310, 251, 31))
-        font8 = QFont()
-        font8.setPointSize(11)
-        font8.setBold(True)
-        self.stopAndSave_button.setFont(font8)
-        self.stopAndSave_button.setStyleSheet(u"background-color: red;\n"
-"color: white;\n"
-"border-radius: 5px")
         self.monitor_data_layout = QGroupBox(self.monitorDisplay)
         self.monitor_data_layout.setObjectName(u"monitor_data_layout")
-        self.monitor_data_layout.setGeometry(QRect(10, 50, 761, 251))
+        self.monitor_data_layout.setGeometry(QRect(10, 50, 761, 531))
         self.monitor_data_layout.setStyleSheet(u"border-color: white")
         self.data_table = QTableWidget(self.monitor_data_layout)
         if (self.data_table.columnCount() < 1):
@@ -239,6 +281,17 @@ class Ui_MainWindow(object):
         self.data_table.setObjectName(u"data_table")
         self.data_table.setGeometry(QRect(10, 30, 741, 211))
         self.data_table.setStyleSheet(u"")
+        self.stopAndSave_button = QPushButton(self.monitor_data_layout)
+        self.stopAndSave_button.setObjectName(u"stopAndSave_button")
+        self.stopAndSave_button.setGeometry(QRect(510, 500, 251, 31))
+        font8 = QFont()
+        font8.setPointSize(11)
+        font8.setBold(True)
+        self.stopAndSave_button.setFont(font8)
+        self.stopAndSave_button.setStyleSheet(u"background-color: red;\n"
+"border-color: black;\n"
+"color: white;\n"
+"border-radius: 5px")
         self.stackedWidget.addWidget(self.monitorDisplay)
         self.controlDisplay = QWidget()
         self.controlDisplay.setObjectName(u"controlDisplay")
@@ -254,7 +307,7 @@ class Ui_MainWindow(object):
         self.label_7.setAlignment(Qt.AlignCenter)
         self.control_data_layout = QGroupBox(self.controlDisplay)
         self.control_data_layout.setObjectName(u"control_data_layout")
-        self.control_data_layout.setGeometry(QRect(10, 60, 761, 281))
+        self.control_data_layout.setGeometry(QRect(10, 60, 761, 521))
         self.label_8 = QLabel(self.control_data_layout)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setGeometry(QRect(10, 30, 731, 31))
@@ -314,19 +367,65 @@ class Ui_MainWindow(object):
 "}")
         self.baudRate_updated_text = QGroupBox(self.control_data_layout)
         self.baudRate_updated_text.setObjectName(u"baudRate_updated_text")
-        self.baudRate_updated_text.setGeometry(QRect(10, 230, 731, 41))
+        self.baudRate_updated_text.setGeometry(QRect(10, 130, 731, 51))
         self.baudRate_updated_text.setStyleSheet(u"border-color: white")
-        self.label_9 = QLabel(self.baudRate_updated_text)
+        self.label_9 = QLabel(self.control_data_layout)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setGeometry(QRect(10, 0, 241, 31))
+        self.label_9.setGeometry(QRect(20, 140, 241, 31))
         self.label_9.setFont(font9)
         self.label_9.setStyleSheet(u"border-color: white; color: red")
-        self.newBaudRate_value = QLabel(self.baudRate_updated_text)
+        self.newBaudRate_value = QLabel(self.control_data_layout)
         self.newBaudRate_value.setObjectName(u"newBaudRate_value")
-        self.newBaudRate_value.setGeometry(QRect(240, 0, 191, 31))
+        self.newBaudRate_value.setGeometry(QRect(250, 140, 191, 31))
         self.newBaudRate_value.setFont(font9)
         self.newBaudRate_value.setStyleSheet(u"border-color: white; color: red")
         self.stackedWidget.addWidget(self.controlDisplay)
+        self.timeBaseDataOptionDisplay = QWidget()
+        self.timeBaseDataOptionDisplay.setObjectName(u"timeBaseDataOptionDisplay")
+        self.plotContainer = QGroupBox(self.timeBaseDataOptionDisplay)
+        self.plotContainer.setObjectName(u"plotContainer")
+        self.plotContainer.setGeometry(QRect(0, 0, 781, 591))
+        self.plotContainer.setStyleSheet(u"color: black;\n"
+"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: black")
+        self.label_11 = QLabel(self.plotContainer)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(10, 10, 351, 31))
+        self.label_11.setFont(font5)
+        self.label_11.setStyleSheet(u"color: black;\n"
+"border-color: white")
+        self.label_11.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.option_layout_4 = QGroupBox(self.plotContainer)
+        self.option_layout_4.setObjectName(u"option_layout_4")
+        self.option_layout_4.setGeometry(QRect(10, 50, 761, 491))
+        self.option_layout_4.setStyleSheet(u"border-color: white")
+        self.plotData_container = QGroupBox(self.option_layout_4)
+        self.plotData_container.setObjectName(u"plotData_container")
+        self.plotData_container.setGeometry(QRect(0, 0, 761, 491))
+        self.plotData_container.setStyleSheet(u"border-style: outset;\n"
+"border-width: 1px;\n"
+"border-radius: 5px;\n"
+"border-color: black")
+        self.generate_data_button = QPushButton(self.plotContainer)
+        self.generate_data_button.setObjectName(u"generate_data_button")
+        self.generate_data_button.setGeometry(QRect(520, 10, 251, 31))
+        self.generate_data_button.setFont(font1)
+        self.generate_data_button.setStyleSheet(u"color: white;\n"
+"background-color: blue;\n"
+"border-radius: 5px")
+        self.dateInput = QDateEdit(self.plotContainer)
+        self.dateInput.setObjectName(u"dateInput")
+        self.dateInput.setGeometry(QRect(400, 10, 110, 31))
+        self.exit_button_4 = QPushButton(self.plotContainer)
+        self.exit_button_4.setObjectName(u"exit_button_4")
+        self.exit_button_4.setGeometry(QRect(660, 550, 111, 31))
+        self.exit_button_4.setFont(font7)
+        self.exit_button_4.setStyleSheet(u"background-color: red;\n"
+"color: white;\n"
+"border-radius: 5px")
+        self.stackedWidget.addWidget(self.timeBaseDataOptionDisplay)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -370,13 +469,18 @@ class Ui_MainWindow(object):
         self.port_error_msg.setText(QCoreApplication.translate("MainWindow", u"*Error When Accessing Port. Please set the correct Port!", None))
         self.library_error_msg.setText(QCoreApplication.translate("MainWindow", u"*Error When Using Library. Please use the other Library!", None))
         self.option_container.setTitle("")
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Please Select One:", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"IoT Modbus Main Panel", None))
         self.option_layout.setTitle("")
         self.monitor_button.setText(QCoreApplication.translate("MainWindow", u"Monitor", None))
-        self.exit_button.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.control_button.setText(QCoreApplication.translate("MainWindow", u"Control", None))
+        self.display_time_base_data_button.setText(QCoreApplication.translate("MainWindow", u"Display Time-Base Data", None))
+        self.sftp_enable_button.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"SFTP Backup Routine", None))
+        self.sftp_disable_button.setText(QCoreApplication.translate("MainWindow", u"Disable", None))
+        self.sftp_not_connected_msg.setText(QCoreApplication.translate("MainWindow", u"*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)", None))
+        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Hour.", None))
+        self.exit_button.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.monitor_data_timestamp.setText(QCoreApplication.translate("MainWindow", u"MONITOR DATA (%Y-%m-%d %H:%M:%S)", None))
-        self.stopAndSave_button.setText(QCoreApplication.translate("MainWindow", u"Stop Monitoring and Save Data", None))
         self.monitor_data_layout.setTitle("")
         ___qtablewidgetitem = self.data_table.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Value", None));
@@ -409,6 +513,7 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem12.setText(QCoreApplication.translate("MainWindow", u"0", None));
         self.data_table.setSortingEnabled(__sortingEnabled)
 
+        self.stopAndSave_button.setText(QCoreApplication.translate("MainWindow", u"Stop Monitoring and Save Data", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"CONTROL DATA", None))
         self.control_data_layout.setTitle("")
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Please Select the New Baud Rate Option:", None))
@@ -418,6 +523,13 @@ class Ui_MainWindow(object):
         self.baudRate_updated_text.setTitle("")
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"*Baud Rate Changed To: ", None))
         self.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"9600", None))
+        self.plotContainer.setTitle("")
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Please Select Date Target", None))
+        self.option_layout_4.setTitle("")
+        self.plotData_container.setTitle("")
+        self.generate_data_button.setText(QCoreApplication.translate("MainWindow", u"Generate Time-Base Data", None))
+        self.dateInput.setDisplayFormat(QCoreApplication.translate("MainWindow", u"dd/MM/yyyy", None))
+        self.exit_button_4.setText(QCoreApplication.translate("MainWindow", u"Exit to Home", None))
         self.menuDev.setTitle(QCoreApplication.translate("MainWindow", u"Dev", None))
     # retranslateUi
 

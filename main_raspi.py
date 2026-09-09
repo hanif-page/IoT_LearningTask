@@ -7,13 +7,25 @@
 # https://doc.qt.io/qtforpython-6/tutorials/basictutorial/uifiles.html (converting ui to py file)
 
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QCoreApplication, QTimer
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
+from PySide6.QtCore import QCoreApplication, QTimer, Qt
 from ui_mainwindow import Ui_MainWindow
 
 from raspi.library.pymodbus.main_usb import PyModbusModule # importing the class!
 from raspi.library.minimal_modbus.main_usb import MinimalModbusModule # importing the class!
-from raspi.no_library.main_usb import MyModbusModule # but this still won't work because I haven't develop it!
+from raspi.no_library.main_usb import MyModbusModule
+
+# MATPLOTLIB CANVAS
+# https://www.pythonguis.com/tutorials/pyside6-plotting-matplotlib/
+from matplotlib.backends.backend_qtagg import FigureCanvas
+from matplotlib.figure import Figure
+
+class MatplotlibCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=10, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super().__init__(fig)
 
 class MainWindow(QMainWindow):
     def __init__(self, modbusModule, modbusClient, baudRate: int):
@@ -55,6 +67,16 @@ class MainWindow(QMainWindow):
         # When control_button clicked
         self.ui.control_button.clicked.connect(self.runControlDisplay)
 
+        # When Display Time-Base Data clicked
+        self.ui.display_time_base_data_button.clicked.connect(self.runTimeBaseDataDisplay)
+        self.ui.exit_button_4.clicked.connect(self.stopTimeBaseDataDisplay)
+
+        # When Generate Time-Base Data Button clicked
+        # self.ui.generate_data_button.clicked.connect(lambda: print(f"Date: {self.ui.dateInput.date().day()}-{self.ui.dateInput.date().month()}-{self.ui.dateInput.date().year()}"))
+        self.ui.generate_data_button.clicked.connect(lambda: self.updateTimeBaseDataDisplay(self.ui.dateInput.date().day(), self.ui.dateInput.date().month(), self.ui.dateInput.date().year()))
+
+        self.show()
+
         # The Delay after one of the baud rate button is clicked
         self.controlTimer = QTimer()
         self.controlTimer.setInterval(3000) # 3s delay!
@@ -69,6 +91,13 @@ class MainWindow(QMainWindow):
         # In default, it is set to none because we don't want to show the text at first!
         self.ui.label_9.setText(QCoreApplication.translate("MainWindow", u"", None))
         self.ui.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"", None))
+
+        # SFTP BACKUP MESSAGE
+        self.ui.sftp_connected_msg.setText("")
+        # self.ui.sftp_connected_msg.setText("Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.")
+        # self.ui.sftp_not_connected_msg.setText("")
+        self.ui.sftp_not_connected_msg.setText("*The Target Backup Computer Is Not Connected! (Please Click Enable)")
+
 
         # hiding the error msg for the port error and library error as default
         # self.ui.port_error_msg.setText("*Error When Accessing Port. Please set the correct Port!")
@@ -112,7 +141,7 @@ class MainWindow(QMainWindow):
             mymodbusClient = mymodbus.connectToClient()   
 
             self.modbusModule = mymodbus
-            self.modbusClient = mymodbusClient         
+            self.modbusClient = mymodbusClient 
             
     def runMonitorDisplay(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.monitorDisplay)
@@ -194,6 +223,66 @@ class MainWindow(QMainWindow):
         else:
             self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
             print("\nOut from the Control Display!\n")
+
+    def runTimeBaseDataDisplay(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.timeBaseDataOptionDisplay)
+        self.ui.update_settings_button.setEnabled(False) # disabling the setting button outside the Option Display!
+    def filterTimeBaseData(self, dd, mm, yy, listOfData):
+        filteredTimeData = []
+        filteredTemperatureData = []
+        filteredHumidityData = []
+
+        for data in listOfData:
+            splittedDate = data["date"].split("-")
+            if int(splittedDate[0]) == yy and int(splittedDate[1]) == mm and int(splittedDate[2]) == dd:
+                print(data["time"])
+
+                filteredTimeData.append(data["time"])
+                filteredTemperatureData.append(data["temperature"])
+                filteredHumidityData.append(data["humidity"])
+
+        return filteredTimeData, filteredTemperatureData, filteredHumidityData
+    def updateTimeBaseDataDisplay(self, dd, mm, yy):
+        print(f"Generate Button Clicked! {dd}-{mm}-{yy}")
+
+        listOfData = self.modbusModule.getListOfData()
+
+        timeData, temperatureData, humidityData = self.filterTimeBaseData(dd, mm, yy, listOfData=listOfData)
+
+        # Generate Time Base Chart
+        # NOTE: Try this next https://stackoverflow.com/questions/63785150/displaying-matplotlib-charts-in-groupbox-in-pyqt5 
+        sc = MatplotlibCanvas(self, width=5, height=10, dpi=82)
+
+        # NOTE: If we have generated a graph, we can't dynamically change the data directly, we need to EXIT and reopen the program to refresh it... 
+        # Possible solution (later, try to debug): https://www.geeksforgeeks.org/python/dynamically-updating-plot-in-matplotlib/
+        sc.axes.clear()
+
+        # https://stackoverflow.com/questions/14762181/adding-a-y-axis-label-to-secondary-y-axis-in-matplotlib
+        ax1 = sc.axes
+        ax2 = sc.axes.twinx()
+
+        ax1.axes.plot(timeData, temperatureData, "b")
+        ax2.axes.plot(timeData, humidityData, "g")
+
+        ax1.set_ylabel("Temperature (°C)", color="b")
+        ax2.set_ylabel("Humidity (%RH)", color="g")
+        ax1.set_xlabel("Time")
+
+        for tick in ax1.axes.get_xticklabels():
+            tick.set_rotation(45)
+        # ax1.axes.set_xticklabels(ax1.get_xticks(), rotation=45)
+
+        matplotlibLayout = QVBoxLayout()
+        matplotlibLayout.addWidget(sc)
+        matplotlibLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.ui.plotData_container.setFixedHeight(490)
+        self.ui.plotData_container.setLayout(matplotlibLayout)
+
+    def stopTimeBaseDataDisplay(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.optionDisplay)
+        self.ui.update_settings_button.setEnabled(True) # enabling the setting button in the Option Display!
+
+        print("\nOut from the Time-Base Data Display!\n")
 
 def main(port: str, baudRate: int) -> None:
     # PYMODBUS MODULE (DEFAULT)

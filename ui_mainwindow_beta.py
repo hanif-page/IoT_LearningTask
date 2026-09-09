@@ -208,14 +208,14 @@ class Ui_MainWindow(object):
 "border-color: rgb(85, 0, 255);")
         self.sftp_not_connected_msg = QLabel(self.option_layout)
         self.sftp_not_connected_msg.setObjectName(u"sftp_not_connected_msg")
-        self.sftp_not_connected_msg.setGeometry(QRect(0, 250, 581, 21))
+        self.sftp_not_connected_msg.setGeometry(QRect(0, 250, 741, 21))
         self.sftp_not_connected_msg.setFont(font4)
         self.sftp_not_connected_msg.setStyleSheet(u"border-color: white;\n"
 "color: red;\n"
 "background: transparent;")
         self.sftp_connected_msg = QLabel(self.option_layout)
         self.sftp_connected_msg.setObjectName(u"sftp_connected_msg")
-        self.sftp_connected_msg.setGeometry(QRect(0, 250, 631, 21))
+        self.sftp_connected_msg.setGeometry(QRect(0, 250, 741, 21))
         self.sftp_connected_msg.setFont(font4)
         self.sftp_connected_msg.setStyleSheet(u"border-color: white;\n"
 "color: green;\n"
@@ -477,8 +477,8 @@ class Ui_MainWindow(object):
         self.sftp_enable_button.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"SFTP Backup Routine", None))
         self.sftp_disable_button.setText(QCoreApplication.translate("MainWindow", u"Disable", None))
-        self.sftp_not_connected_msg.setText(QCoreApplication.translate("MainWindow", u"*The Target Backup Computer Is Not Connected! (Please Click Enable)", None))
-        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.", None))
+        self.sftp_not_connected_msg.setText(QCoreApplication.translate("MainWindow", u"*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)", None))
+        self.sftp_connected_msg.setText(QCoreApplication.translate("MainWindow", u"Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Hour.", None))
         self.exit_button.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.monitor_data_timestamp.setText(QCoreApplication.translate("MainWindow", u"MONITOR DATA (%Y-%m-%d %H:%M:%S)", None))
         self.monitor_data_layout.setTitle("")
