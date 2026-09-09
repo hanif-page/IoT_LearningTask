@@ -27,6 +27,7 @@ class MatplotlibCanvas(FigureCanvas):
         self.axes = fig.add_subplot(111)
         super().__init__(fig)
 
+# NOTE: Later, for this program, remove all the ping and cron job activity! (because we don't need that program)
 class MainWindow(QMainWindow):
     def __init__(self, modbusModule, modbusClient, baudRate: int):
         super(MainWindow, self).__init__()

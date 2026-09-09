@@ -15,6 +15,19 @@ from raspi.library.pymodbus.main_usb import PyModbusModule # importing the class
 from raspi.library.minimal_modbus.main_usb import MinimalModbusModule # importing the class!
 from raspi.no_library.main_usb import MyModbusModule
 
+# Access Crontab through python
+from crontab import CronTab
+
+# For getting the Ping status to the Remote Laptop
+import subprocess
+import platform
+
+# For accessing the .env variable
+# https://www.geeksforgeeks.org/python/access-environment-variable-values-in-python/
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 # MATPLOTLIB CANVAS
 # https://www.pythonguis.com/tutorials/pyside6-plotting-matplotlib/
 from matplotlib.backends.backend_qtagg import FigureCanvas
@@ -92,11 +105,23 @@ class MainWindow(QMainWindow):
         self.ui.label_9.setText(QCoreApplication.translate("MainWindow", u"", None))
         self.ui.newBaudRate_value.setText(QCoreApplication.translate("MainWindow", u"", None))
 
+        # The Data Loop & Delay for Continuously Ping the targeted address of the remote backup
+        # DEFAULT STATE: NOT BACKING UP
+        self.pingTimer = QTimer()
+        self.pingTimer.setInterval(10000) # check every 10s
+        self.pingTimer.timeout.connect(self.updateRemotePingStatus)
+        self.isPingLoopRunning = False
+        self.changeBackupState(state=False)
+
+        # SFTP ENABLE/DISABLE BUTTON
+        self.ui.sftp_enable_button.clicked.connect(lambda: self.changeBackupState(state=True))
+        self.ui.sftp_disable_button.clicked.connect(lambda: self.changeBackupState(state=False))
+
         # SFTP BACKUP MESSAGE
         self.ui.sftp_connected_msg.setText("")
-        # self.ui.sftp_connected_msg.setText("Target Backup Computer Connected! Continuously Backing Up CSV Data Every 1 Minute.")
+        # self.ui.sftp_connected_msg.setText("Target Backup Computer Connected! Continuously Backing Up CSV Data Every 10 Minutes.")
         # self.ui.sftp_not_connected_msg.setText("")
-        self.ui.sftp_not_connected_msg.setText("*The Target Backup Computer Is Not Connected! (Please Click Enable)")
+        self.ui.sftp_not_connected_msg.setText("*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)")
 
 
         # hiding the error msg for the port error and library error as default
@@ -107,6 +132,68 @@ class MainWindow(QMainWindow):
 
         # getting the port and library input from the user and call the recurring function
         self.ui.update_settings_button.clicked.connect(self.updatePortAndLibrary)
+
+    # https://stackoverflow.com/questions/26468640/python-function-to-test-ping
+    # https://stackoverflow.com/questions/4906977/how-can-i-access-environment-variables-in-python
+    def updateRemotePingStatus(self):
+        address = os.getenv("HOST")
+
+        print(address)
+
+        try:
+            subprocess.check_output(
+                f"ping -c 1 {address}", shell=True
+            )
+        except Exception:
+            # set the text into the red text
+            self.ui.sftp_connected_msg.setText("")
+            self.ui.sftp_not_connected_msg.setText("*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)")
+
+            return False
+
+        # set the text into the green text
+        self.ui.sftp_not_connected_msg.setText("")
+        self.ui.sftp_connected_msg.setText("Target Backup Computer Connected! Continuously Backing Up CSV Data Every 10 Minutes.")
+
+        return True
+
+    def changeBackupState(self, state: bool):
+        ...
+        # if state = True, then enable the backup by comment out the line of code in crontab -e
+
+        # else, then disable the backup by commenting the line of code in crontab -e
+
+        # target command
+        # */10 * * * * /home/pi/Hanif/IoT_LearningTask/backup_csv.sh
+
+        print(state)
+
+        cron = CronTab(user=True)
+
+        backupJob = list(cron.find_command("/home/pi/Hanif/IoT_LearningTask/backup_csv.sh"))[0] # index 0: taking the 10 minute interval cron backup
+
+        backupJob.enable(enabled=state)
+
+        # Changing the Ping Loop Action
+        if state == True and not self.isPingLoopRunning:
+            # start the loop IF current loop is not running
+            self.pingTimer.start()
+            self.ui.sftp_not_connected_msg.setText("")
+            self.ui.sftp_connected_msg.setText("Target Backup Computer Connected! Continuously Backing Up CSV Data Every 10 Minutes.")
+
+            self.isPingLoopRunning = state
+        elif state == False and self.isPingLoopRunning:
+            # stop the loop IF current loop is running
+            self.pingTimer.stop()
+            self.ui.sftp_connected_msg.setText("")
+            self.ui.sftp_not_connected_msg.setText("*The Target Backup Computer Is Not Connected! (Please Click Enable or Check the Remote Laptop Status)")
+
+            self.isPingLoopRunning = state
+
+        print(f"Job Status: {state}") 
+
+        # write back the cron text
+        cron.write()
 
     def updatePortAndLibrary(self):
         newPort = self.ui.port_input.toPlainText()
